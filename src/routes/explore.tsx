@@ -12,6 +12,17 @@ import { TrustBadges } from '#/components/trust-badges'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '#/components/ui/select'
+import { STATE_GROUPS, citiesForState } from '#/lib/locations'
 import { m } from '#/paraglide/messages.js'
 
 const searchSchema = z.object({
@@ -65,11 +76,54 @@ function Explore() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="region">{m['explore.regionLabel']()}</Label>
-          <Input id="region" placeholder={m['explore.regionPlaceholder']()} value={form.region} onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} />
+          <Select
+            value={form.region || undefined}
+            onValueChange={(v) =>
+              setForm((f) => ({
+                ...f,
+                region: v,
+                city: v === f.region ? f.city : '',
+              }))
+            }
+          >
+            <SelectTrigger id="region" className="w-full">
+              <SelectValue placeholder="Todos los estados" />
+            </SelectTrigger>
+            <SelectContent>
+              {STATE_GROUPS.map((g, i) => (
+                <SelectGroup key={g.label}>
+                  <SelectLabel>{g.label}</SelectLabel>
+                  {g.states.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                  {i < STATE_GROUPS.length - 1 && <SelectSeparator />}
+                </SelectGroup>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="city">{m['explore.cityLabel']()}</Label>
-          <Input id="city" placeholder={m['explore.cityPlaceholder']()} value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
+          <Select
+            value={form.city || undefined}
+            onValueChange={(v) => setForm((f) => ({ ...f, city: v }))}
+            disabled={!form.region}
+          >
+            <SelectTrigger id="city" className="w-full">
+              <SelectValue
+                placeholder={form.region ? 'Todas las ciudades' : 'Elige un estado primero'}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {(citiesForState(form.region) ?? []).map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="lg:col-span-3 flex gap-2">
           <Button type="submit" size="sm">{m['explore.applyFilters']()}</Button>
