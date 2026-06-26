@@ -148,7 +148,8 @@ src/
   server/        uploads, recipients, campaigns, donations, evidence, payouts, admin
   components/    ui (shadcn), upload-form, trust-badges
   routes/        public (/, /explore, /r/$, /c/$, /trust), dashboard/, admin/, /me, /donate
-drizzle/         generated migrations + seed.sql
+drizzle/         generated migrations (applied to prod by CI)
+scripts/seed.sql demo seed — kept out of drizzle/ so CI never seeds prod
 wrangler.jsonc   d1_databases + r2_buckets + vars
 ```
 

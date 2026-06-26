@@ -1,5 +1,7 @@
 -- Demo seed for entrepanas (Venezuelan examples). Re-runnable: run with
---   npx wrangler d1 execute entrepanas --local --file=./drizzle/seed.sql
+--   npx wrangler d1 execute entrepanas --local --file=./scripts/seed.sql
+-- NOTE: kept OUT of ./drizzle (the migrations_dir) on purpose, so
+-- `wrangler d1 migrations apply` never runs this destructive seed against prod.
 -- Demo users have a non-functional password (browse-only). Create real sign-in
 -- accounts via /register; promote one to admin with:
 --   UPDATE user SET role='admin' WHERE email='<yours>';
