@@ -33,6 +33,7 @@ import { Route as CCampaignSlugIndexRouteImport } from './routes/c/$campaignSlug
 import { Route as DonateCampaignSlugConfirmRouteImport } from './routes/donate/$campaignSlug/confirm'
 import { Route as ApiImgIdRouteImport } from './routes/api/img/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiOgCampaignCampaignSlugRouteImport } from './routes/api/og/campaign/$campaignSlug'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -155,6 +156,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiOgCampaignCampaignSlugRoute =
+  ApiOgCampaignCampaignSlugRouteImport.update({
+    id: '/api/og/campaign/$campaignSlug',
+    path: '/api/og/campaign/$campaignSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/donate/$campaignSlug/confirm': typeof DonateCampaignSlugConfirmRoute
   '/c/$campaignSlug/': typeof CCampaignSlugIndexRoute
   '/r/$recipientSlug/': typeof RRecipientSlugIndexRoute
+  '/api/og/campaign/$campaignSlug': typeof ApiOgCampaignCampaignSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/donate/$campaignSlug/confirm': typeof DonateCampaignSlugConfirmRoute
   '/c/$campaignSlug': typeof CCampaignSlugIndexRoute
   '/r/$recipientSlug': typeof RRecipientSlugIndexRoute
+  '/api/og/campaign/$campaignSlug': typeof ApiOgCampaignCampaignSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/donate/$campaignSlug/confirm': typeof DonateCampaignSlugConfirmRoute
   '/c/$campaignSlug/': typeof CCampaignSlugIndexRoute
   '/r/$recipientSlug/': typeof RRecipientSlugIndexRoute
+  '/api/og/campaign/$campaignSlug': typeof ApiOgCampaignCampaignSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/donate/$campaignSlug/confirm'
     | '/c/$campaignSlug/'
     | '/r/$recipientSlug/'
+    | '/api/og/campaign/$campaignSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/donate/$campaignSlug/confirm'
     | '/c/$campaignSlug'
     | '/r/$recipientSlug'
+    | '/api/og/campaign/$campaignSlug'
   id:
     | '__root__'
     | '/'
@@ -310,6 +322,7 @@ export interface FileRouteTypes {
     | '/donate/$campaignSlug/confirm'
     | '/c/$campaignSlug/'
     | '/r/$recipientSlug/'
+    | '/api/og/campaign/$campaignSlug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -326,6 +339,7 @@ export interface RootRouteChildren {
   DonateCampaignSlugConfirmRoute: typeof DonateCampaignSlugConfirmRoute
   CCampaignSlugIndexRoute: typeof CCampaignSlugIndexRoute
   RRecipientSlugIndexRoute: typeof RRecipientSlugIndexRoute
+  ApiOgCampaignCampaignSlugRoute: typeof ApiOgCampaignCampaignSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -498,6 +512,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/og/campaign/$campaignSlug': {
+      id: '/api/og/campaign/$campaignSlug'
+      path: '/api/og/campaign/$campaignSlug'
+      fullPath: '/api/og/campaign/$campaignSlug'
+      preLoaderRoute: typeof ApiOgCampaignCampaignSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -555,6 +576,7 @@ const rootRouteChildren: RootRouteChildren = {
   DonateCampaignSlugConfirmRoute: DonateCampaignSlugConfirmRoute,
   CCampaignSlugIndexRoute: CCampaignSlugIndexRoute,
   RRecipientSlugIndexRoute: RRecipientSlugIndexRoute,
+  ApiOgCampaignCampaignSlugRoute: ApiOgCampaignCampaignSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

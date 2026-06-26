@@ -14,6 +14,7 @@
   "root.docTitle": "entrepanas — trazabilidad de donaciones",
   "root.metaDescription": "Trazabilidad de donaciones entre personas verificada. Ve a dónde llega la ayuda.",
   "root.footerNote": "entrepanas — trazabilidad de donaciones ligera sobre Cloudflare.",
+  "root.footerEffort": "Un esfuerzo de",
 
   "nav.explore": "Explorar",
   "nav.howItWorks": "Cómo funciona",
@@ -54,6 +55,9 @@
   "login.errorFallback": "No se pudo iniciar sesión",
 
   "register.title": "Crear cuenta",
+  "register.roleLabel": "Quiero…",
+  "register.roleDonor": "Donar",
+  "register.roleReceiver": "Recibir ayuda",
   "register.nameLabel": "Nombre",
   "register.emailLabel": "Correo",
   "register.passwordLabel": "Contraseña",
@@ -77,6 +81,7 @@
   "campaign.confirmedDonationsOne": "{count} donación confirmada",
   "campaign.confirmedDonationsOther": "{count} donaciones confirmadas",
   "campaign.iSentDonation": "Envié una donación",
+  "campaign.shareImage": "Compartir",
   "campaign.timelineTitle": "Línea de tiempo de donaciones",
   "campaign.donationFallback": "Donación",
   "campaign.noDonations": "Aún no hay donaciones confirmadas.",

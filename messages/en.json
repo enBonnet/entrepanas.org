@@ -14,6 +14,7 @@
   "root.docTitle": "entrepanas — donation traceability",
   "root.metaDescription": "Verified peer-to-peer donation traceability. See where help lands.",
   "root.footerNote": "entrepanas — lightweight donation traceability on Cloudflare.",
+  "root.footerEffort": "An effort from",
 
   "nav.explore": "Explore",
   "nav.howItWorks": "How it works",
@@ -54,6 +55,9 @@
   "login.errorFallback": "Sign in failed",
 
   "register.title": "Create account",
+  "register.roleLabel": "I want to…",
+  "register.roleDonor": "Donate",
+  "register.roleReceiver": "Receive help",
   "register.nameLabel": "Name",
   "register.emailLabel": "Email",
   "register.passwordLabel": "Password",
@@ -77,6 +81,7 @@
   "campaign.confirmedDonationsOne": "{count} confirmed donation",
   "campaign.confirmedDonationsOther": "{count} confirmed donations",
   "campaign.iSentDonation": "I sent a donation",
+  "campaign.shareImage": "Share",
   "campaign.timelineTitle": "Donation timeline",
   "campaign.donationFallback": "Donation",
   "campaign.noDonations": "No confirmed donations yet.",

@@ -6,6 +6,17 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { Textarea } from '#/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '#/components/ui/select'
+import { STATE_GROUPS, citiesForState } from '#/lib/locations'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/profile')({
@@ -62,10 +73,53 @@ function ProfilePage() {
             <Input value={form.legalName} onChange={(e) => set('legalName', e.target.value)} required />
           </Field>
           <Field label={m['profilePage.regionLabel']()}>
-            <Input value={form.region} onChange={(e) => set('region', e.target.value)} required />
+            <Select
+              value={form.region || undefined}
+              onValueChange={(v) =>
+                setForm((f) => ({
+                  ...f,
+                  region: v,
+                  city: v === f.region ? f.city : '',
+                }))
+              }
+            >
+              <SelectTrigger id="region" className="w-full">
+                <SelectValue placeholder="Selecciona un estado" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATE_GROUPS.map((g, i) => (
+                  <SelectGroup key={g.label}>
+                    <SelectLabel>{g.label}</SelectLabel>
+                    {g.states.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                    {i < STATE_GROUPS.length - 1 && <SelectSeparator />}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
           <Field label={m['profilePage.cityLabel']()}>
-            <Input value={form.city} onChange={(e) => set('city', e.target.value)} required />
+            <Select
+              value={form.city || undefined}
+              onValueChange={(v) => set('city', v)}
+              disabled={!form.region}
+            >
+              <SelectTrigger id="city" className="w-full">
+                <SelectValue
+                  placeholder={form.region ? 'Selecciona una ciudad' : 'Primero elige un estado'}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {(citiesForState(form.region) ?? []).map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
           <Field label={m['profilePage.neighborhoodLabel']()}>
             <Input value={form.neighborhood} onChange={(e) => set('neighborhood', e.target.value)} />

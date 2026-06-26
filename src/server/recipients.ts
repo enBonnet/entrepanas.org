@@ -12,19 +12,44 @@ import {
 import { getSession, requireRole } from '#/lib/auth'
 import { newId } from '#/lib/id'
 import { uniqueSlug } from '#/lib/format'
+import { STATE_NAMES, isValidStateCity } from '#/lib/locations'
 
-const profileInput = z.object({
+const profileBase = z.object({
   publicName: z.string().min(2).max(80),
   legalName: z.string().min(2).max(120),
   phone: z.string().max(40).optional(),
   email: z.string().email().optional(),
-  region: z.string().min(2).max(80),
+  // Controlled dropdown (src/lib/locations.ts). An enum over the constant
+  // state list gives the same data-quality guarantee as a FK for a fixed set.
+  region: z.enum(STATE_NAMES),
   city: z.string().min(2).max(80),
   neighborhood: z.string().max(80).optional(),
   exactAddress: z.string().max(200).optional(),
   approximateLat: z.number().optional(),
   approximateLng: z.number().optional(),
   bio: z.string().max(2000).optional(),
+})
+
+const profileInput = profileBase.superRefine((v, ctx) => {
+  // Enforce the city -> state relationship in app code (constant list).
+  if (!isValidStateCity(v.region, v.city)) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['city'],
+      message: `La ciudad no pertenece a ${v.region}`,
+    })
+  }
+})
+
+const profileUpdateInput = profileBase.partial().superRefine((v, ctx) => {
+  // Only validate the pair when a city is actually being set.
+  if (v.region !== undefined && v.city !== undefined && !isValidStateCity(v.region, v.city)) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['city'],
+      message: `La ciudad no pertenece a ${v.region}`,
+    })
+  }
 })
 
 export const createMyProfile = createServerFn({ method: 'POST' })
@@ -89,7 +114,7 @@ export const getMyProfile = createServerFn({ method: 'GET' }).handler(async () =
 })
 
 export const updateMyProfile = createServerFn({ method: 'POST' })
-  .validator((d) => profileInput.partial().parse(d))
+  .validator((d) => profileUpdateInput.parse(d))
   .handler(async ({ data }) => {
     const db = getDb()
     const session = await getSession(db)
