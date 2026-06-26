@@ -18,7 +18,6 @@ const profileInput = z.object({
   legalName: z.string().min(2).max(120),
   phone: z.string().max(40).optional(),
   email: z.string().email().optional(),
-  country: z.string().min(2).max(80),
   region: z.string().min(2).max(80),
   city: z.string().min(2).max(80),
   neighborhood: z.string().max(80).optional(),
@@ -54,7 +53,7 @@ export const createMyProfile = createServerFn({ method: 'POST' })
         publicName: data.publicName,
         phone: data.phone,
         email: data.email,
-        country: data.country,
+        country: 'Venezuela',
         region: data.region,
         city: data.city,
         neighborhood: data.neighborhood,
@@ -160,7 +159,6 @@ export const getPublicProfileBySlug = createServerFn({ method: 'GET' })
 
 const exploreFilters = z.object({
   limit: z.number().int().optional(),
-  country: z.string().optional(),
   region: z.string().optional(), // state / province
   city: z.string().optional(),
   q: z.string().optional(), // free text over name + bio
@@ -174,9 +172,6 @@ export const listExploreProfiles = createServerFn({ method: 'GET' })
     // Filters operate on the discrete public location fields (country/region/city),
     // NOT on the private exact_address. region == state/province.
     const conditions = [ne(recipientProfiles.frozen, true)]
-    if (data.country?.trim()) {
-      conditions.push(like(recipientProfiles.country, `%${data.country.trim()}%`))
-    }
     if (data.region?.trim()) {
       conditions.push(like(recipientProfiles.region, `%${data.region.trim()}%`))
     }

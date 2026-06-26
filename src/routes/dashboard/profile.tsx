@@ -23,7 +23,6 @@ function ProfilePage() {
     legalName: existing?.legalName ?? '',
     phone: existing?.phone ?? '',
     email: existing?.email ?? '',
-    country: existing?.country ?? '',
     region: existing?.region ?? '',
     city: existing?.city ?? '',
     neighborhood: existing?.neighborhood ?? '',
@@ -61,9 +60,6 @@ function ProfilePage() {
           </Field>
           <Field label={m['profilePage.legalNameLabel']()}>
             <Input value={form.legalName} onChange={(e) => set('legalName', e.target.value)} required />
-          </Field>
-          <Field label={m['profilePage.countryLabel']()}>
-            <Input value={form.country} onChange={(e) => set('country', e.target.value)} required />
           </Field>
           <Field label={m['profilePage.regionLabel']()}>
             <Input value={form.region} onChange={(e) => set('region', e.target.value)} required />

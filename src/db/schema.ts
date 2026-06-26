@@ -181,7 +181,7 @@ export const payoutMethods = sqliteTable(
       .notNull()
       .references(() => recipientProfiles.id, { onDelete: 'cascade' }),
     // ponytail: free text for now — recipient picks a label ("Pago móvil",
-    // "Cuenta bancaria", "Bizum"…) and writes the how-to-pay details verbatim.
+    // "Cuenta bancaria", "Zelle"…) and writes the how-to-pay details verbatim.
     // No automatic masking: the recipient controls exactly what's shown.
     label: text('label').notNull(),
     details: text('details').notNull(),
