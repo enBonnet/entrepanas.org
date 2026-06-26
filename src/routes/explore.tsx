@@ -57,7 +57,7 @@ function Explore() {
 
       <form
         onSubmit={applyFilters}
-        className="island-shell rounded-2xl p-4 mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg-items-end"
+        className="island-shell rounded-2xl p-4 mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:items-end"
       >
         <div className="space-y-1.5">
           <Label htmlFor="q">{m['explore.searchLabel']()}</Label>
