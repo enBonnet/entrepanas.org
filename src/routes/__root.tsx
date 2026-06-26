@@ -12,7 +12,7 @@ import { authClient } from '#/lib/auth-client'
 import { LanguageSwitcher } from '#/components/language-switcher'
 import { detectLocale } from '#/server/i18n'
 import { m } from '#/paraglide/messages.js'
-import { setLocale, getLocale } from '#/paraglide/runtime.js'
+import { setLocale } from '#/paraglide/runtime.js'
 
 import appCss from '../styles.css?url'
 
@@ -29,14 +29,29 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     if (typeof window !== 'undefined') return
     setLocale(await detectLocale())
   },
+  // ponytail: SEO always indexed in Spanish — Venezuelan, es-first site
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: m['root.docTitle']() },
+      { title: m['root.docTitle']({}, { locale: 'es' }) },
       {
         name: 'description',
-        content: m['root.metaDescription'](),
+        content: m['root.metaDescription']({}, { locale: 'es' }),
+      },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:locale', content: 'es_VE' },
+      { property: 'og:site_name', content: 'entrepanas' },
+      { property: 'og:title', content: m['root.docTitle']({}, { locale: 'es' }) },
+      {
+        property: 'og:description',
+        content: m['root.metaDescription']({}, { locale: 'es' }),
+      },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: m['root.docTitle']({}, { locale: 'es' }) },
+      {
+        name: 'twitter:description',
+        content: m['root.metaDescription']({}, { locale: 'es' }),
       },
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
@@ -105,7 +120,7 @@ function Header() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={getLocale()}>
+    <html lang="es">
       <head>
         <HeadContent />
       </head>
