@@ -92,6 +92,9 @@
   "recipient.activeCampaignsTitle": "Campañas activas",
   "recipient.noCampaigns": "No hay campañas activas.",
   "recipient.howToSendTitle": "Cómo enviar ayuda",
+  "recipient.copy": "Copiar",
+  "recipient.copyAll": "Copiar todo",
+  "recipient.copied": "Copiado",
 
   "donate.notFound": "Campaña no encontrada.",
   "donate.title": "Confirma tu donación",

@@ -1,13 +1,38 @@
+import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { getPublicProfileBySlug } from '#/server/recipients'
 import { TrustBadges } from '#/components/trust-badges'
+import { Button } from '#/components/ui/button'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/r/$recipientSlug/')({
   component: RecipientPage,
   loader: async ({ params }) => getPublicProfileBySlug({ data: { slug: params.recipientSlug } }),
 })
+
+function CopyButton({ value, copyLabel }: { value: string; copyLabel: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="xs"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(value)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1500)
+        } catch {
+          // ponytail: clipboard may be blocked (non-secure context); the value
+          // stays selectable via the surrounding select-all span, so copy still works.
+        }
+      }}
+    >
+      {copied ? m['recipient.copied']() : copyLabel}
+    </Button>
+  )
+}
 
 function RecipientPage() {
   const p = Route.useLoaderData()
@@ -58,16 +83,37 @@ function RecipientPage() {
       {p.payouts.some((x) => x.verificationStatus === 'verified') && (
         <section className="island-shell rounded-2xl p-6 mt-8">
           <h2 className="font-semibold text-lg" style={{ color: 'var(--sea-ink)' }}>{m['recipient.howToSendTitle']()}</h2>
-          <ul className="mt-2 space-y-2 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
+          <div className="mt-3 space-y-4">
             {p.payouts
               .filter((x) => x.verificationStatus === 'verified')
-              .map((pm, i) => (
-                <li key={i}>
-                  <span className="font-medium" style={{ color: 'var(--sea-ink)' }}>{pm.label}</span>
-                  <span className="whitespace-pre-line block">{pm.details}</span>
-                </li>
-              ))}
-          </ul>
+              .map((pm, i) => {
+                const lines = pm.details.split('\n').map((l) => l.trim()).filter(Boolean)
+                return (
+                  <div key={i} className="feature-card rounded-2xl p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium" style={{ color: 'var(--sea-ink)' }}>{pm.label}</span>
+                      {lines.length > 1 && <CopyButton value={pm.details} copyLabel={m['recipient.copyAll']()} />}
+                    </div>
+                    <ul className="mt-2">
+                      {lines.map((line, j) => (
+                        <li
+                          key={j}
+                          className="flex items-center justify-between gap-2 border-t border-black/5 py-1.5 first:border-t-0"
+                        >
+                          <span
+                            className="font-mono text-sm select-all break-all"
+                            style={{ color: 'var(--sea-ink-soft)' }}
+                          >
+                            {line}
+                          </span>
+                          <CopyButton value={line} copyLabel={m['recipient.copy']()} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              })}
+          </div>
         </section>
       )}
     </div>
