@@ -15,7 +15,6 @@ import { Label } from '#/components/ui/label'
 import { m } from '#/paraglide/messages.js'
 
 const searchSchema = z.object({
-  country: z.string().optional(),
   region: z.string().optional(), // state / province
   city: z.string().optional(),
   q: z.string().optional(),
@@ -34,7 +33,6 @@ function Explore() {
   const navigate = useNavigate({ from: '/explore' })
   const [form, setForm] = useState({
     q: search.q ?? '',
-    country: search.country ?? '',
     region: search.region ?? '',
     city: search.city ?? '',
   })
@@ -59,15 +57,11 @@ function Explore() {
 
       <form
         onSubmit={applyFilters}
-        className="island-shell rounded-2xl p-4 mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg-items-end"
+        className="island-shell rounded-2xl p-4 mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:items-end"
       >
         <div className="space-y-1.5">
           <Label htmlFor="q">{m['explore.searchLabel']()}</Label>
           <Input id="q" placeholder={m['explore.searchPlaceholder']()} value={form.q} onChange={(e) => setForm((f) => ({ ...f, q: e.target.value }))} />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="country">{m['explore.countryLabel']()}</Label>
-          <Input id="country" placeholder={m['explore.countryPlaceholder']()} value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="region">{m['explore.regionLabel']()}</Label>
@@ -77,14 +71,14 @@ function Explore() {
           <Label htmlFor="city">{m['explore.cityLabel']()}</Label>
           <Input id="city" placeholder={m['explore.cityPlaceholder']()} value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
         </div>
-        <div className="lg:col-span-4 flex gap-2">
+        <div className="lg:col-span-3 flex gap-2">
           <Button type="submit" size="sm">{m['explore.applyFilters']()}</Button>
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => {
-              setForm({ q: '', country: '', region: '', city: '' })
+              setForm({ q: '', region: '', city: '' })
               navigate({ to: '/explore', search: {} })
             }}
           >

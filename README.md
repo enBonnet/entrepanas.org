@@ -161,5 +161,5 @@ wrangler.jsonc   d1_databases + r2_buckets + vars
 - **location_verified**: city/region reviewed
 - **trusted_recipient**: full cycle completed + admin approval
 
-Public UI shows outcomes ("Identity verified", "Located in Valparaíso, Chile"),
+Public UI shows outcomes ("Identity verified", "Located in Caracas, Venezuela"),
 never raw documents.
