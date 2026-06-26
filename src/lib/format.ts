@@ -1,3 +1,5 @@
+import { getLocale } from '../paraglide/runtime.js'
+
 export function slugify(input: string) {
   return input
     .toLowerCase()
@@ -14,7 +16,7 @@ export function uniqueSlug(base: string, salt: string) {
 }
 
 export function formatMoney(cents: number, currency = 'USD') {
-  return new Intl.NumberFormat('en', { style: 'currency', currency }).format(
+  return new Intl.NumberFormat(getLocale(), { style: 'currency', currency }).format(
     cents / 100,
   )
 }
