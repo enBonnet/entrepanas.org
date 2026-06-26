@@ -13,6 +13,7 @@ function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState<'donor' | 'receiver'>('donor')
   const [error, setError] = useState<string | null>(null)
 
   async function onSubmit(e: React.FormEvent) {
@@ -23,7 +24,7 @@ function RegisterPage() {
       setError(err.message ?? m['register.errorFallback']())
       return
     }
-    navigate({ to: '/dashboard/profile' })
+    navigate({ to: role === 'receiver' ? '/dashboard/profile' : '/explore' })
   }
 
   return (
@@ -32,6 +33,27 @@ function RegisterPage() {
         {m['register.title']()}
       </h1>
       <form onSubmit={onSubmit} className="island-shell mt-6 rounded-2xl p-6 space-y-4">
+        <div className="space-y-1.5">
+          <Label>{m['register.roleLabel']()}</Label>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant={role === 'donor' ? 'default' : 'outline'}
+              onClick={() => setRole('donor')}
+              className="flex-1"
+            >
+              {m['register.roleDonor']()}
+            </Button>
+            <Button
+              type="button"
+              variant={role === 'receiver' ? 'default' : 'outline'}
+              onClick={() => setRole('receiver')}
+              className="flex-1"
+            >
+              {m['register.roleReceiver']()}
+            </Button>
+          </div>
+        </div>
         <div className="space-y-1.5">
           <Label htmlFor="name">{m['register.nameLabel']()}</Label>
           <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />

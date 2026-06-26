@@ -8,6 +8,8 @@ moderated public evidence timeline links money received to outcomes.
 > Trust model, not payments. Entrepanas never touches funds — donors pay recipients
 > directly via the recipient's own bank/wallet.
 
+This is an effort from [build4venezuela.com](https://build4venezuela.com/).
+
 ## Stack
 
 - **TanStack Start + React 19** on **Cloudflare Workers** (`@cloudflare/vite-plugin`)

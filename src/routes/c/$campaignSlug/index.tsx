@@ -17,6 +17,30 @@ export const Route = createFileRoute('/c/$campaignSlug/')({
     ])
     return { campaign, donations, evidence }
   },
+  head: ({ loaderData }) => {
+    if (!loaderData) return { meta: [] }
+    const { campaign } = loaderData
+    const title = campaign.campaign.title
+    const description =
+      campaign.campaign.summary ??
+      `Campaña de ${campaign.recipient?.publicName ?? 'un recipiente'} en ${campaign.recipient?.city ?? 'Venezuela'}`
+    const imageUrl = `/api/og/campaign/${campaign.campaign.slug}`
+    return {
+      meta: [
+        { title },
+        { name: 'description', content: description },
+        { property: 'og:title', content: title },
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: imageUrl },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: imageUrl },
+      ],
+    }
+  },
 })
 
 function CampaignPage() {
@@ -55,7 +79,7 @@ function CampaignPage() {
             ? m['campaign.confirmedDonationsOne']({ count: campaign.donorsCount })
             : m['campaign.confirmedDonationsOther']({ count: campaign.donorsCount })}
         </p>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <Link
             to="/donate/$campaignSlug/confirm"
             params={{ campaignSlug: campaign.campaign.slug }}
@@ -64,6 +88,14 @@ function CampaignPage() {
           >
             {m['campaign.iSentDonation']()}
           </Link>
+          <a
+            href={`/api/og/campaign/${campaign.campaign.slug}`}
+            download={`entrepanas-${campaign.campaign.slug}.png`}
+            className="rounded-md px-4 py-2 text-sm font-medium no-underline"
+            style={{ background: 'var(--sea-ink)', color: 'white' }}
+          >
+            {m['campaign.shareImage']()}
+          </a>
           {campaign.recipient && (
             <span className="ml-3 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
               {m['common.byAuthor']({ name: `${campaign.recipient.publicName}, ${campaign.recipient.city}` })}

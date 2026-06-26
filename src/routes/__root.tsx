@@ -128,8 +128,29 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Header />
         <main className="page-wrap py-8">{children}</main>
         <footer className="site-footer mt-16">
-          <div className="page-wrap py-8 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-            {m['root.footerNote']()}
+          <div className="page-wrap py-8 text-sm space-y-1" style={{ color: 'var(--sea-ink-soft)' }}>
+            <p>{m['root.footerNote']()}</p>
+            <p>
+              {m['root.footerEffort']()}{' '}
+              <a
+                href="https://build4venezuela.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:opacity-80"
+              >
+                build4venezuela.com
+              </a>
+            </p>
+            <p>
+              <a
+                href="https://github.com/enBonnet/entrepanas.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:opacity-80"
+              >
+                GitHub
+              </a>
+            </p>
           </div>
         </footer>
         <TanStackDevtools
