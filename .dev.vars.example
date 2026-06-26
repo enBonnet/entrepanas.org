@@ -1,0 +1,8 @@
+# Copy to .dev.vars (local dev secrets, never committed). Prod: `wrangler secret put`.
+BETTER_AUTH_SECRET=run-npx-better-auth-cli-secret
+R2_ACCESS_KEY_ID=your-r2-access-key-id
+R2_SECRET_ACCESS_KEY=your-r2-secret-access-key
+# For remote D1 migrations via drizzle-kit (optional, only `db:migrate:remote`):
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_DATABASE_ID=
+CLOUDFLARE_D1_TOKEN=

@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "entrepanas",
+  "compatibility_date": "2025-09-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "observability": { "enabled": true },
+  // Cloudflare D1 (SQLite-dialect) — the all-Cloudflare DB. Create with:
+  //   npx wrangler d1 create entrepanas   (then paste the returned database_id below for remote deploys)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "entrepanas",
+      "migrations_dir": "./drizzle"
+    }
+  ],
+  // R2 bucket for evidence images. Create with:
+  //   npx wrangler r2 bucket create entrepanas-evidence
+  "r2_buckets": [
+    {
+      "binding": "EVIDENCE_BUCKET",
+      "bucket_name": "entrepanas-evidence"
+    }
+  ],
+  // Non-secret config. Secrets (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY,
+  // BETTER_AUTH_SECRET) go in .dev.vars locally and `wrangler secret put` in prod.
+  "vars": {
+    "R2_ACCOUNT_ID": "REPLACE_WITH_CLOUDFLARE_ACCOUNT_ID",
+    "R2_BUCKET_NAME": "entrepanas-evidence",
+    "UPLOAD_MAX_BYTES": "10485760"
+  }
+}
