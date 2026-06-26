@@ -1,3 +1,5 @@
+import { m } from '#/paraglide/messages.js'
+
 type Props = {
   identity?: boolean
   payout?: boolean
@@ -18,7 +20,7 @@ export function TrustBadges({ identity, payout, location }: Props) {
             : { color: 'var(--sea-ink-soft)', borderColor: 'var(--line)' }
         }
       >
-        {identity ? 'Identity verified' : 'Identity: pending'}
+        {identity ? m['trustBadges.identityVerified']() : m['trustBadges.identityPending']()}
       </span>
       <span
         className={CHIP}
@@ -28,7 +30,7 @@ export function TrustBadges({ identity, payout, location }: Props) {
             : { color: 'var(--sea-ink-soft)', borderColor: 'var(--line)' }
         }
       >
-        {payout ? 'Payout verified' : 'Payout: pending'}
+        {payout ? m['trustBadges.payoutVerified']() : m['trustBadges.payoutPending']()}
       </span>
       <span
         className={CHIP}
@@ -38,7 +40,7 @@ export function TrustBadges({ identity, payout, location }: Props) {
             : { color: 'var(--sea-ink-soft)', borderColor: 'var(--line)' }
         }
       >
-        {location ? 'Location verified' : 'Location: pending'}
+        {location ? m['trustBadges.locationVerified']() : m['trustBadges.locationPending']()}
       </span>
     </div>
   )

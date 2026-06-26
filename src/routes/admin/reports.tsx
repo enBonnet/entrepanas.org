@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { listAbuseReports } from '#/server/admin'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/reports')({
   component: ReportsAdmin,
@@ -11,7 +12,7 @@ function ReportsAdmin() {
   const reports = Route.useLoaderData()
   return (
     <div>
-      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>Abuse reports</h1>
+      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>{m['admin.reportsTitle']()}</h1>
       <div className="mt-6 space-y-2">
         {reports.map((r) => (
           <div key={r.id} className="feature-card rounded-2xl p-4">
@@ -20,7 +21,7 @@ function ReportsAdmin() {
             {r.details && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{r.details}</p>}
           </div>
         ))}
-        {reports.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>No open reports.</p>}
+        {reports.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['admin.noReports']()}</p>}
       </div>
     </div>
   )

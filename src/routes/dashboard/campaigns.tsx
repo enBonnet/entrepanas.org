@@ -7,6 +7,7 @@ import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { Textarea } from '#/components/ui/textarea'
 import { formatMoney } from '#/lib/format'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/campaigns')({
   component: CampaignsPage,
@@ -37,7 +38,7 @@ function CampaignsPage() {
 
   return (
     <div>
-      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>Campaigns</h1>
+      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>{m['campaignsPage.title']()}</h1>
 
       <div className="mt-6 space-y-3">
         {campaigns.map((c) => (
@@ -47,34 +48,34 @@ function CampaignsPage() {
                 {c.title}
               </Link>
               <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-                {c.status}{c.goalCents ? ` · goal ${formatMoney(c.goalCents, c.currency)}` : ''}
+                {c.status}{c.goalCents ? m['campaignsPage.goalSuffix']({ amount: formatMoney(c.goalCents, c.currency) }) : ''}
               </p>
             </div>
             <span className="island-kicker">{c.status}</span>
           </div>
         ))}
-        {campaigns.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>No campaigns yet.</p>}
+        {campaigns.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['campaignsPage.empty']()}</p>}
       </div>
 
       <form onSubmit={onSubmit} className="island-shell rounded-2xl p-6 mt-8 space-y-4">
-        <h2 className="font-semibold" style={{ color: 'var(--sea-ink)' }}>New campaign</h2>
+        <h2 className="font-semibold" style={{ color: 'var(--sea-ink)' }}>{m['campaignsPage.formTitle']()}</h2>
         <div className="space-y-1.5">
-          <Label>Title</Label>
+          <Label>{m['campaignsPage.titleLabel']()}</Label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
         <div className="space-y-1.5">
-          <Label>Summary</Label>
+          <Label>{m['campaignsPage.summaryLabel']()}</Label>
           <Textarea rows={3} value={summary} onChange={(e) => setSummary(e.target.value)} />
         </div>
         <div className="space-y-1.5 max-w-xs">
-          <Label>Goal (USD)</Label>
+          <Label>{m['campaignsPage.goalLabel']()}</Label>
           <Input type="number" min="0" step="0.01" value={goal} onChange={(e) => setGoal(e.target.value)} />
         </div>
-        <Button type="submit">Create campaign</Button>
+        <Button type="submit">{m['campaignsPage.submit']()}</Button>
         {created && (
           <p className="text-sm" style={{ color: 'var(--palm)' }}>
-            Created —{' '}
-            <Link to="/c/$campaignSlug" params={{ campaignSlug: created.slug }}>view it</Link>.
+            {m['campaignsPage.createdPrefix']()}{' '}
+            <Link to="/c/$campaignSlug" params={{ campaignSlug: created.slug }}>{m['campaignsPage.viewIt']()}</Link>.
           </p>
         )}
       </form>

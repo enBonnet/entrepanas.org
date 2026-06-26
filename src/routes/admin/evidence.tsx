@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { listPendingEvidence, reviewEvidence } from '#/server/admin'
 import { Button } from '#/components/ui/button'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/evidence')({
   component: EvidenceReview,
@@ -20,7 +21,7 @@ function EvidenceReview() {
 
   return (
     <div>
-      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>Evidence moderation</h1>
+      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>{m['admin.evidenceTitle']()}</h1>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((img) => (
           <div key={img.id} className="feature-card rounded-2xl overflow-hidden">
@@ -29,14 +30,14 @@ function EvidenceReview() {
               <p className="island-kicker">{img.kind} · {img.visibility}</p>
               {img.caption && <p className="mt-1 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{img.caption}</p>}
               <div className="mt-3 flex gap-2">
-                <Button size="sm" onClick={() => decide(img.id, 'approved')}>Approve</Button>
-                <Button size="sm" variant="outline" onClick={() => decide(img.id, 'rejected')}>Reject</Button>
-                <Button size="sm" variant="destructive" onClick={() => decide(img.id, 'redacted')}>Redact</Button>
+                <Button size="sm" onClick={() => decide(img.id, 'approved')}>{m['admin.approve']()}</Button>
+                <Button size="sm" variant="outline" onClick={() => decide(img.id, 'rejected')}>{m['admin.reject']()}</Button>
+                <Button size="sm" variant="destructive" onClick={() => decide(img.id, 'redacted')}>{m['admin.redact']()}</Button>
               </div>
             </div>
           </div>
         ))}
-        {items.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>Queue is clear.</p>}
+        {items.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['admin.queueClear']()}</p>}
       </div>
     </div>
   )

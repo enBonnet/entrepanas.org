@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { authorizeUpload, commitUpload } from '#/server/uploads'
 import { Button } from '#/components/ui/button'
 import { Label } from '#/components/ui/label'
+import { m } from '#/paraglide/messages.js'
 
 type Kind =
   | 'transfer_proof'
@@ -21,14 +22,14 @@ type Props = {
   label?: string
 }
 
-const KIND_LABEL: Record<Kind, string> = {
-  transfer_proof: 'Transfer proof',
-  invoice: 'Invoice',
-  receipt: 'Receipt',
-  product_photo: 'Product photo',
-  delivery_photo: 'Delivery photo',
-  identity_doc: 'Identity document',
-}
+const KIND_KEY = {
+  transfer_proof: 'uploadForm.kindTransferProof',
+  invoice: 'uploadForm.kindInvoice',
+  receipt: 'uploadForm.kindReceipt',
+  product_photo: 'uploadForm.kindProductPhoto',
+  delivery_photo: 'uploadForm.kindDeliveryPhoto',
+  identity_doc: 'uploadForm.kindIdentityDoc',
+} as const
 
 export function UploadForm({
   kind,
@@ -65,7 +66,7 @@ export function UploadForm({
         body: file,
         headers: { 'Content-Type': file.type },
       })
-      if (!put.ok) throw new Error(`Upload failed (${put.status})`)
+      if (!put.ok) throw new Error(m['uploadForm.errorFallback']())
 
       const committed = await commitUpload({
         data: {
@@ -81,7 +82,7 @@ export function UploadForm({
       setDone(committed)
       onCommitted?.(committed.id)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed')
+      setError(err instanceof Error ? err.message : m['uploadForm.errorFallback']())
     } finally {
       setBusy(false)
     }
@@ -89,7 +90,7 @@ export function UploadForm({
 
   return (
     <div>
-      <Label>{label ?? KIND_LABEL[kind]}</Label>
+      <Label>{label ?? m[KIND_KEY[kind]]()}</Label>
       <input
         type="file"
         accept="image/jpeg,image/png,image/webp"
@@ -97,17 +98,17 @@ export function UploadForm({
         onChange={onFile}
         className="mt-1 block text-sm"
       />
-      {busy && <p className="text-xs mt-1" style={{ color: 'var(--sea-ink-soft)' }}>Uploading…</p>}
+      {busy && <p className="text-xs mt-1" style={{ color: 'var(--sea-ink-soft)' }}>{m['uploadForm.uploading']()}</p>}
       {error && <p className="text-xs mt-1" style={{ color: 'var(--destructive)' }}>{error}</p>}
       {done && (
         <div className="mt-2 flex items-center gap-2">
           <img src={`/api/img/${done.id}`} alt="" className="h-16 w-16 rounded object-cover" />
           <span className="text-xs" style={{ color: 'var(--sea-ink-soft)' }}>
-            Uploaded — pending moderation.
+            {m['uploadForm.uploaded']()}
           </span>
         </div>
       )}
-      {busy && <Button disabled className="mt-2">Uploading…</Button>}
+      {busy && <Button disabled className="mt-2">{m['uploadForm.uploading']()}</Button>}
     </div>
   )
 }

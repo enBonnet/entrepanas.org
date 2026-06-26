@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { getMyProfile } from '#/server/recipients'
 import { UploadForm } from '#/components/upload-form'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/verifications')({
   component: VerificationsPage,
@@ -13,19 +14,19 @@ function VerificationsPage() {
 
   return (
     <div>
-      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>Verification</h1>
+      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>{m['verificationsPage.title']()}</h1>
       <p className="mt-1 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-        Identity documents are admin-only and never shown publicly.
+        {m['verificationsPage.note']()}
       </p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <Status label="Identity" value={profile?.identityVerificationStatus ?? 'unverified'} />
-        <Status label="Payout" value={profile?.payoutVerificationStatus ?? 'unverified'} />
-        <Status label="Location" value={profile?.locationVerificationStatus ?? 'unverified'} />
+        <Status label={m['verificationsPage.identityLabel']()} value={profile?.identityVerificationStatus ?? 'unverified'} />
+        <Status label={m['verificationsPage.payoutLabel']()} value={profile?.payoutVerificationStatus ?? 'unverified'} />
+        <Status label={m['verificationsPage.locationLabel']()} value={profile?.locationVerificationStatus ?? 'unverified'} />
       </div>
 
       {!profile ? (
-        <p className="mt-6 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>Create a profile first.</p>
+        <p className="mt-6 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['verificationsPage.needProfile']()}</p>
       ) : (
         <div className="island-shell rounded-2xl p-6 mt-6">
           <UploadForm
@@ -33,7 +34,7 @@ function VerificationsPage() {
             visibility="admin_only"
             linkedEntityType="recipient_verification"
             linkedEntityId={profile.id}
-            label="Government ID + selfie"
+            label={m['verificationsPage.idUploadLabel']()}
           />
         </div>
       )}

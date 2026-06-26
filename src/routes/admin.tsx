@@ -1,6 +1,7 @@
 import { Outlet, Link, createFileRoute, redirect } from '@tanstack/react-router'
 
 import { authClient } from '#/lib/auth-client'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/admin')({
   component: AdminLayout,
@@ -12,18 +13,18 @@ export const Route = createFileRoute('/admin')({
 })
 
 const items = [
-  { to: '/admin', label: 'Overview' },
-  { to: '/admin/recipients', label: 'Recipients' },
-  { to: '/admin/verifications', label: 'Verifications' },
-  { to: '/admin/evidence', label: 'Evidence' },
-  { to: '/admin/reports', label: 'Reports' },
+  { to: '/admin', msg: 'admin.navOverview' },
+  { to: '/admin/recipients', msg: 'admin.navRecipients' },
+  { to: '/admin/verifications', msg: 'admin.navVerifications' },
+  { to: '/admin/evidence', msg: 'admin.navEvidence' },
+  { to: '/admin/reports', msg: 'admin.navReports' },
 ] as const
 
 function AdminLayout() {
   return (
     <div className="rise-in grid gap-8 md:grid-cols-[200px_1fr]">
       <aside className="island-shell rounded-2xl p-4 h-fit">
-        <p className="island-kicker px-3 pb-2">Admin</p>
+        <p className="island-kicker px-3 pb-2">{m['admin.navKicker']()}</p>
         <nav className="flex flex-col gap-1 text-sm">
           {items.map((it) => (
             <Link
@@ -33,7 +34,7 @@ function AdminLayout() {
               activeProps={{ style: { background: 'var(--sea-ink)', color: 'white' } }}
               inactiveProps={{ style: { color: 'var(--sea-ink-soft)' } }}
             >
-              {it.label}
+              {m[it.msg]()}
             </Link>
           ))}
         </nav>

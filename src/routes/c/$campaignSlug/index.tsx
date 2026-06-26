@@ -4,6 +4,7 @@ import { getCampaignBySlug } from '#/server/campaigns'
 import { listCampaignDonations } from '#/server/donations'
 import { listPublicEvidenceForCampaign } from '#/server/evidence'
 import { formatMoney } from '#/lib/format'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/c/$campaignSlug/')({
   component: CampaignPage,
@@ -20,14 +21,14 @@ export const Route = createFileRoute('/c/$campaignSlug/')({
 
 function CampaignPage() {
   const data = Route.useLoaderData()
-  if (!data) return <p style={{ color: 'var(--sea-ink-soft)' }}>Campaign not found.</p>
+  if (!data) return <p style={{ color: 'var(--sea-ink-soft)' }}>{m['campaign.notFound']()}</p>
   const { campaign, donations, evidence } = data
   const goal = campaign.campaign.goalCents
   const pct = goal ? Math.min(100, Math.round((campaign.raisedCents / goal) * 100)) : 0
 
   return (
     <div className="rise-in">
-      <p className="island-kicker">Campaign</p>
+      <p className="island-kicker">{m['campaign.kicker']()}</p>
       <h1 className="display-title text-4xl font-bold mt-2" style={{ color: 'var(--sea-ink)' }}>
         {campaign.campaign.title}
       </h1>
@@ -42,7 +43,7 @@ function CampaignPage() {
           </span>
           {goal && (
             <span className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-              of {formatMoney(goal, campaign.campaign.currency)}
+              {m['common.ofGoal']({ amount: formatMoney(goal, campaign.campaign.currency) })}
             </span>
           )}
         </div>
@@ -50,7 +51,9 @@ function CampaignPage() {
           <div style={{ width: `${pct}%`, height: '100%', background: 'var(--lagoon)' }} />
         </div>
         <p className="mt-2 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-          {campaign.donorsCount} confirmed donation{campaign.donorsCount === 1 ? '' : 's'}
+          {campaign.donorsCount === 1
+            ? m['campaign.confirmedDonationsOne']({ count: campaign.donorsCount })
+            : m['campaign.confirmedDonationsOther']({ count: campaign.donorsCount })}
         </p>
         <div className="mt-4">
           <Link
@@ -59,33 +62,35 @@ function CampaignPage() {
             className="rounded-md px-4 py-2 text-sm font-medium no-underline"
             style={{ background: 'var(--palm)', color: 'white' }}
           >
-            I sent a donation
+            {m['campaign.iSentDonation']()}
           </Link>
-          <span className="ml-3 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-            {campaign.recipient ? `by ${campaign.recipient.publicName}, ${campaign.recipient.city}` : ''}
-          </span>
+          {campaign.recipient && (
+            <span className="ml-3 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
+              {m['common.byAuthor']({ name: `${campaign.recipient.publicName}, ${campaign.recipient.city}` })}
+            </span>
+          )}
         </div>
       </div>
 
       <section className="mt-10">
-        <h2 className="font-semibold text-lg" style={{ color: 'var(--sea-ink)' }}>Donation timeline</h2>
+        <h2 className="font-semibold text-lg" style={{ color: 'var(--sea-ink)' }}>{m['campaign.timelineTitle']()}</h2>
         <ul className="mt-3 space-y-2">
           {donations.map((d) => (
             <li key={d.id} className="feature-card rounded-xl p-4 flex justify-between">
-              <span style={{ color: 'var(--sea-ink-soft)' }}>{d.message ?? 'Donation'}</span>
+              <span style={{ color: 'var(--sea-ink-soft)' }}>{d.message ?? m['campaign.donationFallback']()}</span>
               <span className="font-medium" style={{ color: 'var(--sea-ink)' }}>
                 {formatMoney(d.amountCents, d.currency)}
               </span>
             </li>
           ))}
           {donations.length === 0 && (
-            <li className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>No confirmed donations yet.</li>
+            <li className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['campaign.noDonations']()}</li>
           )}
         </ul>
       </section>
 
       <section className="mt-10">
-        <h2 className="font-semibold text-lg" style={{ color: 'var(--sea-ink)' }}>Evidence</h2>
+        <h2 className="font-semibold text-lg" style={{ color: 'var(--sea-ink)' }}>{m['campaign.evidenceTitle']()}</h2>
         <div className="mt-3 grid gap-4 grid-cols-2 md:grid-cols-4">
           {evidence.images.map((img) => (
             <figure key={img.id} className="feature-card rounded-xl overflow-hidden">
@@ -96,7 +101,7 @@ function CampaignPage() {
             </figure>
           ))}
           {evidence.images.length === 0 && (
-            <p className="text-sm col-span-full" style={{ color: 'var(--sea-ink-soft)' }}>No public evidence yet.</p>
+            <p className="text-sm col-span-full" style={{ color: 'var(--sea-ink-soft)' }}>{m['campaign.noEvidence']()}</p>
           )}
         </div>
       </section>

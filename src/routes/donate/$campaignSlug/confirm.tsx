@@ -8,6 +8,7 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { Textarea } from '#/components/ui/textarea'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/donate/$campaignSlug/confirm')({
   component: ConfirmPage,
@@ -23,7 +24,7 @@ function ConfirmPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (!data) return <p style={{ color: 'var(--sea-ink-soft)' }}>Campaign not found.</p>
+  if (!data) return <p style={{ color: 'var(--sea-ink-soft)' }}>{m['donate.notFound']()}</p>
   const { campaign } = data
 
   async function onSubmit(e: React.FormEvent) {
@@ -32,7 +33,7 @@ function ConfirmPage() {
     setError(null)
     try {
       const cents = Math.round(Number(amount) * 100)
-      if (!cents) throw new Error('Enter an amount')
+      if (!cents) throw new Error(m['donate.enterAmount']())
 
       const created = await createDonation({
         data: {
@@ -57,7 +58,7 @@ function ConfirmPage() {
           },
         })
         const put = await fetch(auth.uploadUrl, { method: 'PUT', body: proof, headers: { 'Content-Type': proof.type } })
-        if (!put.ok) throw new Error('Proof upload failed')
+        if (!put.ok) throw new Error(m['donate.proofUploadFailed']())
         const committed = await commitUpload({
           data: {
             objectKey: auth.objectKey,
@@ -91,23 +92,23 @@ function ConfirmPage() {
   return (
     <div className="mx-auto max-w-lg rise-in">
       <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>
-        Confirm your donation
+        {m['donate.title']()}
       </h1>
       <p className="mt-1 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-        For “{campaign.title}”. Send money to the recipient first, then confirm here.
+        {m['donate.subtitle']({ title: campaign.title })}
       </p>
 
       <form onSubmit={onSubmit} className="island-shell rounded-2xl p-6 mt-6 space-y-4">
         <div className="space-y-1.5 max-w-xs">
-          <Label>Amount ({campaign.currency})</Label>
+          <Label>{m['donate.amountLabel']({ currency: campaign.currency })}</Label>
           <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
         </div>
         <div className="space-y-1.5">
-          <Label>Message (optional)</Label>
+          <Label>{m['donate.messageLabel']()}</Label>
           <Textarea rows={2} value={message} onChange={(e) => setMessage(e.target.value)} />
         </div>
         <div className="space-y-1.5">
-          <Label>Transfer proof (optional, private)</Label>
+          <Label>{m['donate.proofLabel']()}</Label>
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"
@@ -116,7 +117,7 @@ function ConfirmPage() {
           />
         </div>
         {error && <p className="text-sm" style={{ color: 'var(--destructive)' }}>{error}</p>}
-        <Button type="submit" disabled={busy}>{busy ? 'Confirming…' : 'I sent it'}</Button>
+        <Button type="submit" disabled={busy}>{busy ? m['donate.submitting']() : m['donate.submit']()}</Button>
       </form>
     </div>
   )

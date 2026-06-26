@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { listAllRecipients, freezeRecipient } from '#/server/admin'
 import { Button } from '#/components/ui/button'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/recipients')({
   component: RecipientsAdmin,
@@ -20,22 +21,22 @@ function RecipientsAdmin() {
 
   return (
     <div>
-      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>Recipients</h1>
+      <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>{m['admin.recipientsTitle']()}</h1>
       <div className="mt-6 space-y-2">
         {rows.map((r) => (
           <div key={r.id} className="feature-card rounded-2xl p-4 flex justify-between items-center">
             <div>
               <p className="font-medium" style={{ color: 'var(--sea-ink)' }}>{r.publicName}</p>
               <p className="text-xs" style={{ color: 'var(--sea-ink-soft)' }}>
-                trust: {r.trustLevel} · flags: {r.riskFlagsCount}{r.frozen ? ' · FROZEN' : ''}
+                {m['admin.trustLabel']()}: {r.trustLevel} · {m['admin.flagsLabel']()}: {r.riskFlagsCount}{r.frozen ? ` · ${m['common.statusFrozen']()}` : ''}
               </p>
             </div>
             <Button size="sm" variant={r.frozen ? 'outline' : 'destructive'} onClick={() => toggle(r.id, r.frozen)}>
-              {r.frozen ? 'Unfreeze' : 'Freeze'}
+              {r.frozen ? m['admin.unfreeze']() : m['admin.freeze']()}
             </Button>
           </div>
         ))}
-        {rows.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>No recipients.</p>}
+        {rows.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['admin.noRecipients']()}</p>}
       </div>
     </div>
   )

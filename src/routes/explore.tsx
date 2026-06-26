@@ -12,6 +12,7 @@ import { TrustBadges } from '#/components/trust-badges'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
+import { m } from '#/paraglide/messages.js'
 
 const searchSchema = z.object({
   country: z.string().optional(),
@@ -50,10 +51,10 @@ function Explore() {
   return (
     <div className="rise-in">
       <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>
-        Recipients
+        {m['explore.title']()}
       </h1>
       <p className="mt-1" style={{ color: 'var(--sea-ink-soft)' }}>
-        Verified people raising help — filter by country, state or city.
+        {m['explore.subtitle']()}
       </p>
 
       <form
@@ -61,23 +62,23 @@ function Explore() {
         className="island-shell rounded-2xl p-4 mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg-items-end"
       >
         <div className="space-y-1.5">
-          <Label htmlFor="q">Search</Label>
-          <Input id="q" placeholder="Name or story" value={form.q} onChange={(e) => setForm((f) => ({ ...f, q: e.target.value }))} />
+          <Label htmlFor="q">{m['explore.searchLabel']()}</Label>
+          <Input id="q" placeholder={m['explore.searchPlaceholder']()} value={form.q} onChange={(e) => setForm((f) => ({ ...f, q: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="country">Country</Label>
-          <Input id="country" placeholder="Chile" value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
+          <Label htmlFor="country">{m['explore.countryLabel']()}</Label>
+          <Input id="country" placeholder={m['explore.countryPlaceholder']()} value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="region">State / Region</Label>
-          <Input id="region" placeholder="Valparaíso" value={form.region} onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} />
+          <Label htmlFor="region">{m['explore.regionLabel']()}</Label>
+          <Input id="region" placeholder={m['explore.regionPlaceholder']()} value={form.region} onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="city">City</Label>
-          <Input id="city" placeholder="Valparaíso" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
+          <Label htmlFor="city">{m['explore.cityLabel']()}</Label>
+          <Input id="city" placeholder={m['explore.cityPlaceholder']()} value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
         </div>
         <div className="lg:col-span-4 flex gap-2">
-          <Button type="submit" size="sm">Apply filters</Button>
+          <Button type="submit" size="sm">{m['explore.applyFilters']()}</Button>
           <Button
             type="button"
             variant="outline"
@@ -87,7 +88,7 @@ function Explore() {
               navigate({ to: '/explore', search: {} })
             }}
           >
-            Clear
+            {m['explore.clear']()}
           </Button>
         </div>
       </form>
@@ -120,7 +121,7 @@ function Explore() {
         ))}
         {rows.length === 0 && (
           <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-            No recipients match your filters.
+            {m['explore.empty']()}
           </p>
         )}
       </div>

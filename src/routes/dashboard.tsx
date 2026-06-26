@@ -1,6 +1,7 @@
 import { Outlet, Link, createFileRoute, redirect } from '@tanstack/react-router'
 
 import { authClient } from '#/lib/auth-client'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardLayout,
@@ -14,13 +15,13 @@ export const Route = createFileRoute('/dashboard')({
 })
 
 const allItems = [
-  { to: '/dashboard', label: 'Overview', recipientOnly: false },
-  { to: '/dashboard/profile', label: 'Profile', recipientOnly: false },
-  { to: '/me/donations', label: 'My donations', recipientOnly: false },
-  { to: '/dashboard/payouts', label: 'Payouts', recipientOnly: true },
-  { to: '/dashboard/campaigns', label: 'Campaigns', recipientOnly: true },
-  { to: '/dashboard/evidence', label: 'Evidence', recipientOnly: true },
-  { to: '/dashboard/verifications', label: 'Verifications', recipientOnly: true },
+  { to: '/dashboard', msg: 'dashboardNav.overview', recipientOnly: false },
+  { to: '/dashboard/profile', msg: 'dashboardNav.profile', recipientOnly: false },
+  { to: '/me/donations', msg: 'dashboardNav.myDonations', recipientOnly: false },
+  { to: '/dashboard/payouts', msg: 'dashboardNav.payouts', recipientOnly: true },
+  { to: '/dashboard/campaigns', msg: 'dashboardNav.campaigns', recipientOnly: true },
+  { to: '/dashboard/evidence', msg: 'dashboardNav.evidence', recipientOnly: true },
+  { to: '/dashboard/verifications', msg: 'dashboardNav.verifications', recipientOnly: true },
 ] as const
 
 function DashboardLayout() {
@@ -41,7 +42,7 @@ function DashboardLayout() {
               activeProps={{ style: { background: 'var(--palm)', color: 'white' } }}
               inactiveProps={{ style: { color: 'var(--sea-ink-soft)' } }}
             >
-              {it.label}
+              {m[it.msg]()}
             </Link>
           ))}
         </nav>

@@ -6,6 +6,7 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { Textarea } from '#/components/ui/textarea'
+import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/profile')({
   component: ProfilePage,
@@ -47,47 +48,47 @@ function ProfilePage() {
   return (
     <div>
       <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>
-        {existing ? 'Edit profile' : 'Create recipient profile'}
+        {existing ? m['profilePage.titleEdit']() : m['profilePage.titleCreate']()}
       </h1>
       <p className="mt-1 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
-        Private fields (legal name, phone, email, exact address) are never shown publicly.
+        {m['profilePage.note']()}
       </p>
 
       <form onSubmit={onSubmit} className="island-shell rounded-2xl p-6 mt-6 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Public name *">
+          <Field label={m['profilePage.publicNameLabel']()}>
             <Input value={form.publicName} onChange={(e) => set('publicName', e.target.value)} required />
           </Field>
-          <Field label="Legal name * (private)">
+          <Field label={m['profilePage.legalNameLabel']()}>
             <Input value={form.legalName} onChange={(e) => set('legalName', e.target.value)} required />
           </Field>
-          <Field label="Country *">
+          <Field label={m['profilePage.countryLabel']()}>
             <Input value={form.country} onChange={(e) => set('country', e.target.value)} required />
           </Field>
-          <Field label="State / Region *">
+          <Field label={m['profilePage.regionLabel']()}>
             <Input value={form.region} onChange={(e) => set('region', e.target.value)} required />
           </Field>
-          <Field label="City *">
+          <Field label={m['profilePage.cityLabel']()}>
             <Input value={form.city} onChange={(e) => set('city', e.target.value)} required />
           </Field>
-          <Field label="Neighborhood">
+          <Field label={m['profilePage.neighborhoodLabel']()}>
             <Input value={form.neighborhood} onChange={(e) => set('neighborhood', e.target.value)} />
           </Field>
-          <Field label="Phone (private)">
+          <Field label={m['profilePage.phoneLabel']()}>
             <Input value={form.phone} onChange={(e) => set('phone', e.target.value)} />
           </Field>
-          <Field label="Email (private)">
+          <Field label={m['profilePage.emailLabel']()}>
             <Input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
           </Field>
         </div>
-        <Field label="Exact address (private, admin-only)">
+        <Field label={m['profilePage.exactAddressLabel']()}>
           <Input value={form.exactAddress} onChange={(e) => set('exactAddress', e.target.value)} />
         </Field>
-        <Field label="Bio / story">
+        <Field label={m['profilePage.bioLabel']()}>
           <Textarea rows={4} value={form.bio} onChange={(e) => set('bio', e.target.value)} />
         </Field>
-        {saved && <p className="text-sm" style={{ color: 'var(--palm)' }}>Saved.</p>}
-        <Button type="submit">{existing ? 'Save changes' : 'Publish profile'}</Button>
+        {saved && <p className="text-sm" style={{ color: 'var(--palm)' }}>{m['profilePage.saved']()}</p>}
+        <Button type="submit">{existing ? m['profilePage.submitEdit']() : m['profilePage.submitCreate']()}</Button>
       </form>
     </div>
   )
