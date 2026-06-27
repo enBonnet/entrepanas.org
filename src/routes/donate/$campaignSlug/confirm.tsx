@@ -8,6 +8,7 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { Textarea } from '#/components/ui/textarea'
+import { errorMessage } from '#/lib/errors'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/donate/$campaignSlug/confirm')({
@@ -83,7 +84,7 @@ function ConfirmPage() {
       })
       navigate({ to: '/me/donations' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed')
+      setError(errorMessage(err))
     } finally {
       setBusy(false)
     }

@@ -3,6 +3,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { getPublicProfileBySlug } from '#/server/recipients'
 import { TrustBadges } from '#/components/trust-badges'
+import { ReputationBadge } from '#/components/reputation-badge'
 import { Button } from '#/components/ui/button'
 import { m } from '#/paraglide/messages.js'
 
@@ -50,7 +51,11 @@ function RecipientPage() {
       </p>
 
       <div className="mt-4">
-        <TrustBadges identity={p.identityVerified} payout={p.payoutVerified} location={p.locationVerified} />
+        {p.reputationTier ? (
+          <ReputationBadge tier={p.reputationTier} icon={p.reputationIcon} />
+        ) : (
+          <TrustBadges identity={p.identityVerified} payout={p.payoutVerified} location={p.locationVerified} />
+        )}
       </div>
 
       {p.bio && (

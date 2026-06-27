@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm'
-import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { check, index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 // ponytail: a single schema file is drizzle-kit's expected entry point and keeps the
 // trust model's 16 entities readable as one picture. Sensitive fields are stored as
@@ -140,6 +140,15 @@ export const recipientProfiles = sqliteTable(
       .default('none')
       .notNull(),
     riskFlagsCount: integer('risk_flags_count').default(0).notNull(),
+    // Reputation is materialized on write (src/lib/reputation.ts recomputeRecipientReputation).
+    // Tier is a pure monotonic function of score, so ORDER BY score == tier/score ordering.
+    reputationScore: integer('reputation_score').default(0).notNull(),
+    reputationTier: text('reputation_tier', {
+      enum: ['nuevo', 'en proceso', 'verificado', 'confiable'],
+    })
+      .default('nuevo')
+      .notNull(),
+    reputationUpdatedAt: integer('reputation_updated_at', { mode: 'timestamp_ms' }),
     frozen: integer('frozen', { mode: 'boolean' }).default(false).notNull(),
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).default(nowMs).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
@@ -147,7 +156,15 @@ export const recipientProfiles = sqliteTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (t) => [index('recipient_userId_idx').on(t.userId)],
+  (t) => [
+    index('recipient_userId_idx').on(t.userId),
+    // DB constraints are cheap insurance even though recompute is the sole writer.
+    check('recipient_reputation_score_range', sql`${t.reputationScore} between 0 and 100`),
+    check(
+      'recipient_reputation_tier_values',
+      sql`${t.reputationTier} in ('nuevo','en proceso','verificado','confiable')`,
+    ),
+  ],
 )
 
 export const recipientVerifications = sqliteTable(
@@ -423,6 +440,19 @@ export const abuseReports = sqliteTable(
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).default(nowMs).notNull(),
   },
   (t) => [index('report_target_idx').on(t.targetType, t.targetId)],
+)
+
+// ponytail: D1-based rate limiter — no Redis needed for MVP volume.
+// Keys are scoped by action (e.g. "auth:login:192.168.1.1").
+// Rows older than the window are pruned by a periodic cleanup or just ignored at read time.
+export const rateLimits = sqliteTable(
+  'rate_limit',
+  {
+    id: text('id').primaryKey(),
+    key: text('key').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).default(nowMs).notNull(),
+  },
+  (t) => [index('ratelimit_key_created_idx').on(t.key, t.createdAt)],
 )
 
 /* -------------------------------------------------------------------------- */

@@ -4,6 +4,7 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { authClient } from '#/lib/auth-client'
+import { errorMessage } from '#/lib/errors'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/register')({ component: RegisterPage })
@@ -21,7 +22,7 @@ function RegisterPage() {
     setError(null)
     const { error: err } = await authClient.signUp.email({ name, email, password })
     if (err) {
-      setError(err.message ?? m['register.errorFallback']())
+      setError(errorMessage(err.message ?? 'Failed'))
       return
     }
     navigate({ to: role === 'receiver' ? '/dashboard/profile' : '/explore' })
@@ -65,6 +66,7 @@ function RegisterPage() {
         <div className="space-y-1.5">
           <Label htmlFor="password">{m['register.passwordLabel']()}</Label>
           <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
+          <p className="text-xs" style={{ color: 'var(--sea-ink-soft)' }}>{m['register.passwordHint']()}</p>
         </div>
         {error && <p className="text-sm" style={{ color: 'var(--destructive)' }}>{error}</p>}
         <Button type="submit" className="w-full">{m['register.submit']()}</Button>
