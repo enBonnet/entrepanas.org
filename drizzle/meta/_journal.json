@@ -8,6 +8,20 @@
       "when": 1782498389319,
       "tag": "0000_fuzzy_nekra",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1782514446854,
+      "tag": "0001_skinny_ultron",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1782518276030,
+      "tag": "0002_clammy_speed_demon",
+      "breakpoints": true
     }
   ]
 }

@@ -228,6 +228,9 @@
   "admin.queueClear": "La cola está vacía.",
   "admin.reportsTitle": "Reportes de abuso",
   "admin.noReports": "No hay reportes abiertos.",
+  "admin.action": "Actuar",
+  "admin.reviewed": "Revisado",
+  "admin.dismiss": "Descartar",
 
   "errors.NO_PROFILE": "Primero debes crear un perfil.",
   "errors.NOT_FOUND": "No encontrado.",
@@ -235,5 +238,25 @@
   "errors.INSERT_FAILED": "No se pudo guardar. Intenta de nuevo.",
   "errors.PROFILE_EXISTS": "Ya tienes un perfil.",
   "errors.FILE_TOO_LARGE": "El archivo es demasiado grande.",
-  "errors.FORBIDDEN": "No tienes permiso para esto."
+  "errors.FORBIDDEN": "No tienes permiso para esto.",
+  "errors.RATE_LIMITED": "Demasiadas acciones. Espera unos minutos.",
+  "errors.AMOUNT_MISMATCH": "El monto no coincide con el pledge.",
+  "errors.ALREADY_CONFIRMED": "Esta donación ya fue confirmada.",
+  "errors.INVALID_MIME": "Tipo de archivo no permitido.",
+  "errors.MIME_MISMATCH": "El tipo de archivo no coincide.",
+  "errors.SIZE_MISMATCH": "El tamaño del archivo no coincide.",
+  "errors.OBJECT_NOT_FOUND": "El archivo no existe.",
+  "errors.INVALID_TRANSITION": "Cambio de estado no válido.",
+  "errors.TOTAL_MISMATCH": "El total no coincide con la suma de los items.",
+  "errors.PASSWORD_TOO_SHORT": "La contraseña debe tener al menos 8 caracteres.",
+  "errors.PASSWORD_NO_UPPERCASE": "La contraseña debe incluir una mayúscula.",
+  "errors.PASSWORD_NO_DIGIT": "La contraseña debe incluir un número.",
+  "register.passwordHint": "Mínimo 8 caracteres, una mayúscula y un número.",
+
+  "reputation.tierNuevo": "Nuevo",
+  "reputation.tierEnProceso": "En proceso",
+  "reputation.tierVerificado": "Verificado",
+  "reputation.tierConfiable": "Confiable",
+  "reputation.label": "Reputación",
+  "admin.reputationBreakdown": "Desglose de reputación"
 }

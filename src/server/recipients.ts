@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { and, eq, like, ne, or } from 'drizzle-orm'
+import { and, desc, eq, like, ne, or } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { getDb } from '#/db'
@@ -11,6 +11,7 @@ import {
 } from '#/db/schema'
 import { getSession, requireRole } from '#/lib/auth'
 import { newId } from '#/lib/id'
+import { isPublicTierEnabled, TIER_ICON } from '#/lib/reputation'
 import { uniqueSlug } from '#/lib/format'
 import { STATE_NAMES, isValidStateCity } from '#/lib/locations'
 
@@ -176,14 +177,19 @@ export const getPublicProfileBySlug = createServerFn({ method: 'GET' })
       identityVerified: p.identityVerificationStatus === 'verified',
       payoutVerified: p.payoutVerificationStatus === 'verified',
       locationVerified: p.locationVerificationStatus === 'verified',
-      riskFlagsCount: p.riskFlagsCount,
+      // Public tier (coarse word + icon) only when the flag is on. Raw score
+      // and riskFlagsCount are NEVER surfaced publicly (privacy guarantee).
+      ...(isPublicTierEnabled()
+        ? { reputationTier: p.reputationTier, reputationIcon: TIER_ICON[p.reputationTier] }
+        : {}),
       payouts,
       campaigns: activeCampaigns,
     }
   })
 
 const exploreFilters = z.object({
-  limit: z.number().int().optional(),
+  limit: z.number().int().min(1).max(48).default(24),
+  offset: z.number().int().min(0).default(0),
   region: z.string().optional(), // state / province
   city: z.string().optional(),
   q: z.string().optional(), // free text over name + bio
@@ -193,7 +199,6 @@ export const listExploreProfiles = createServerFn({ method: 'GET' })
   .validator((d) => exploreFilters.parse(d ?? {}))
   .handler(async ({ data }) => {
     const db = getDb()
-    const limit = Math.min(data.limit ?? 24, 48)
     // Filters operate on the discrete public location fields (country/region/city),
     // NOT on the private exact_address. region == state/province.
     const conditions = [ne(recipientProfiles.frozen, true)]
@@ -224,14 +229,25 @@ export const listExploreProfiles = createServerFn({ method: 'GET' })
         identityVerified: recipientProfiles.identityVerificationStatus,
         payoutVerified: recipientProfiles.payoutVerificationStatus,
         locationVerified: recipientProfiles.locationVerificationStatus,
+        reputationScore: recipientProfiles.reputationScore,
+        reputationTier: recipientProfiles.reputationTier,
       })
       .from(recipientProfiles)
       .where(and(...conditions))
-      .limit(limit)
+      // Ranked by reputation (tier is a pure function of score, so this is also
+      // tier DESC, score DESC). Recipients without a computed score sort last.
+      .orderBy(desc(recipientProfiles.reputationScore))
+      .limit(data.limit)
+      .offset(data.offset)
+    const showTier = isPublicTierEnabled()
     return rows.map((r) => ({
       ...r,
       identityVerified: r.identityVerified === 'verified',
       payoutVerified: r.payoutVerified === 'verified',
       locationVerified: r.locationVerified === 'verified',
+      // Tier is exposed only when the flag is on; score is internal (ordering only).
+      reputationTier: showTier ? r.reputationTier : undefined,
+      reputationIcon: showTier ? TIER_ICON[r.reputationTier] : undefined,
+      reputationScore: undefined,
     }))
   })

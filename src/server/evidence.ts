@@ -4,7 +4,6 @@ import { z } from 'zod'
 
 import { getDb } from '#/db'
 import {
-  campaigns,
   donationExpenseLinks,
   evidenceImages,
   expenseItems,
@@ -13,6 +12,8 @@ import {
 } from '#/db/schema'
 import { getSession, requireRole } from '#/lib/auth'
 import { newId } from '#/lib/id'
+import { recomputeRecipientReputation } from '#/lib/reputation'
+import { verifyCampaignOwnership } from '#/lib/validate'
 
 async function myProfileId(userId: string) {
   const db = getDb()
@@ -50,12 +51,20 @@ export const createExpense = createServerFn({ method: 'POST' })
     const profileId = await myProfileId(u.id)
     if (!profileId) throw new Error('NO_PROFILE')
 
-    const [c] = await db
-      .select({ id: campaigns.id })
-      .from(campaigns)
-      .where(eq(campaigns.id, data.campaignId))
-      .limit(1)
-    if (!c) throw new Error('NOT_FOUND')
+    // Verify campaign ownership — recipient can only add expenses to their own campaigns.
+    await verifyCampaignOwnership(db, data.campaignId, profileId)
+
+    // Validate totalCents matches the sum of items (with 1% tolerance for rounding).
+    if (data.items.length > 0) {
+      const itemsSum = data.items.reduce(
+        (sum, it) => sum + it.amountCents * it.quantity,
+        0,
+      )
+      const diff = Math.abs(data.totalCents - itemsSum)
+      if (diff > data.totalCents * 0.01 && diff > 1) {
+        throw new Error('TOTAL_MISMATCH')
+      }
+    }
 
     const id = newId()
     await db.insert(expenses).values({
@@ -78,6 +87,7 @@ export const createExpense = createServerFn({ method: 'POST' })
         })),
       )
     }
+    await recomputeRecipientReputation(profileId)
     return { id }
   })
 

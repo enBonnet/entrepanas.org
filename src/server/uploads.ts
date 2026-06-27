@@ -4,10 +4,17 @@ import { z } from 'zod'
 import { env } from 'cloudflare:workers'
 
 import { getDb } from '#/db'
-import { campaigns, evidenceImages } from '#/db/schema'
+import { campaigns, evidenceImages, recipientProfiles } from '#/db/schema'
 import { getSession, requireRole } from '#/lib/auth'
 import { newId } from '#/lib/id'
+import { recomputeRecipientReputation } from '#/lib/reputation'
 import { createPresignedPutUrl } from '#/lib/r2'
+import {
+  verifyR2Object,
+  validateMimeType,
+  validateFileSize,
+  checkRateLimit,
+} from '#/lib/validate'
 
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'] as const
 const KINDS = [
@@ -59,6 +66,9 @@ export const authorizeUpload = createServerFn({ method: 'POST' })
 
     if (data.sizeBytes > maxBytes()) throw new Error('FILE_TOO_LARGE')
 
+    // Rate limit: max 20 uploads per hour per user.
+    await checkRateLimit(`upload:authorize:${user.id}`, 20, 3600_000)
+
     // Ownership: a linked campaign must belong to the caller's recipient profile.
     if (data.linkedEntityType === 'campaign' && data.linkedEntityId) {
       const [c] = await db
@@ -67,7 +77,16 @@ export const authorizeUpload = createServerFn({ method: 'POST' })
         .where(eq(campaigns.id, data.linkedEntityId))
         .limit(1)
       if (!c) throw new Error('NOT_FOUND')
-      // Full recipient->user ownership is checked in recipients/campaigns modules.
+
+      // Verify the caller owns this campaign (or is admin).
+      if (user.role !== 'admin') {
+        const [profile] = await db
+          .select({ id: recipientProfiles.id })
+          .from(recipientProfiles)
+          .where(eq(recipientProfiles.userId, user.id))
+          .limit(1)
+        if (!profile || profile.id !== c.owner) throw new Error('FORBIDDEN')
+      }
     }
 
     const visibility = enforceVisibility(data.kind, data.visibility)
@@ -106,6 +125,11 @@ export const commitUpload = createServerFn({ method: 'POST' })
 
     if (!data.objectKey.includes(`/${user.id}/`)) throw new Error('FORBIDDEN')
 
+    // Verify the object actually exists in R2 and validate real metadata.
+    const real = await verifyR2Object(data.objectKey)
+    validateMimeType(data.mimeType, real.contentType)
+    validateFileSize(data.sizeBytes, real.size)
+
     const visibility = enforceVisibility(data.kind, data.visibility)
 
     const [row] = await db
@@ -115,7 +139,7 @@ export const commitUpload = createServerFn({ method: 'POST' })
         ownerUserId: user.id,
         objectKey: data.objectKey,
         mimeType: data.mimeType,
-        sizeBytes: data.sizeBytes,
+        sizeBytes: real.size, // use real size, not client-declared
         width: data.width,
         height: data.height,
         checksum: data.checksum,
@@ -129,5 +153,26 @@ export const commitUpload = createServerFn({ method: 'POST' })
       .returning({ id: evidenceImages.id })
 
     if (!row) throw new Error('INSERT_FAILED')
+
+    // Reputation: evidence commit may affect approved-evidence (once moderated).
+    // Resolve campaign link → recipient, else uploader → recipient profile.
+    let profileId: string | undefined
+    if (data.linkedEntityType === 'campaign' && data.linkedEntityId) {
+      const [c] = await db
+        .select({ recipientProfileId: campaigns.recipientProfileId })
+        .from(campaigns)
+        .where(eq(campaigns.id, data.linkedEntityId))
+        .limit(1)
+      profileId = c?.recipientProfileId
+    } else {
+      const [p] = await db
+        .select({ id: recipientProfiles.id })
+        .from(recipientProfiles)
+        .where(eq(recipientProfiles.userId, user.id))
+        .limit(1)
+      profileId = p?.id
+    }
+    if (profileId) await recomputeRecipientReputation(profileId)
+
     return { id: row.id }
   })
