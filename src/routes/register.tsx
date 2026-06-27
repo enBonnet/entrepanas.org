@@ -16,16 +16,23 @@ function RegisterPage() {
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<'donor' | 'receiver'>('donor')
   const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (busy) return
+    setBusy(true)
     setError(null)
-    const { error: err } = await authClient.signUp.email({ name, email, password })
-    if (err) {
-      setError(errorMessage(err.message ?? 'Failed'))
-      return
+    try {
+      const { error: err } = await authClient.signUp.email({ name, email, password })
+      if (err) {
+        setError(errorMessage(err.message ?? 'Failed'))
+        return
+      }
+      navigate({ to: role === 'receiver' ? '/dashboard/profile' : '/explore' })
+    } finally {
+      setBusy(false)
     }
-    navigate({ to: role === 'receiver' ? '/dashboard/profile' : '/explore' })
   }
 
   return (
@@ -69,7 +76,7 @@ function RegisterPage() {
           <p className="text-xs" style={{ color: 'var(--sea-ink-soft)' }}>{m['register.passwordHint']()}</p>
         </div>
         {error && <p className="text-sm" style={{ color: 'var(--destructive)' }}>{error}</p>}
-        <Button type="submit" className="w-full">{m['register.submit']()}</Button>
+        <Button type="submit" className="w-full" disabled={busy}>{busy ? m['register.submitting']?.() ?? '…' : m['register.submit']()}</Button>
       </form>
     </div>
   )

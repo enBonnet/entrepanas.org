@@ -1,0 +1,57 @@
+[     113ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/login:0
+[     506ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=25c9760d:14335
+[    8073ms] [ERROR] %o
+
+%s
+
+%s
+ Error: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received undefined"
+  }
+]
+    at Object.deserialize (http://localhost:3000/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/ShallowErrorPlugin.js?v=25c9760d:27:10)
+    at deserializePlugin (http://localhost:3000/node_modules/seroval/dist/esm/development/index.mjs?v=25c9760d:2216:18)
+    at deserialize (http://localhost:3000/node_modules/seroval/dist/esm/development/index.mjs?v=25c9760d:2372:14)
+    at assignProperty (http://localhost:3000/node_modules/seroval/dist/esm/development/index.mjs?v=25c9760d:2047:7)
+    at deserializeProperties (http://localhost:3000/node_modules/seroval/dist/esm/development/index.mjs?v=25c9760d:2078:7)
+    at deserializeObject (http://localhost:3000/node_modules/seroval/dist/esm/development/index.mjs?v=25c9760d:2089:3)
+    at deserialize (http://localhost:3000/node_modules/seroval/dist/esm/development/index.mjs?v=25c9760d:2345:14)
+    at deserializeTop (http://localhost:3000/node_modules/seroval/dist/esm/development/index.mjs?v=25c9760d:2404:12)
+    at fromCrossJSON (http://localhost:3000/node_modules/seroval/dist/esm/development/index.mjs?v=25c9760d:3985:10)
+    at getResponse (http://localhost:3000/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/serverFnFetcher.js?v=25c9760d:168:14) The above error occurred in the <MatchInnerImpl> component. React will try to recreate this component tree from scratch using the error boundary you provided, CatchBoundaryImpl. @ http://localhost:3000/src/routes/__root.tsx:194
+[    8074ms] [WARNING] Warning: The following error wasn't caught by any route! At the very least, consider setting an 'errorComponent' in your RootRoute! @ http://localhost:3000/src/routes/__root.tsx:194
+[    8074ms] [WARNING] Warning: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received undefined"
+  }
+] @ http://localhost:3000/src/routes/__root.tsx:194
+[   38966ms] [ERROR] Failed to load resource: the server responded with a status of 429 (Too Many Requests) @ http://localhost:3000/api/auth/get-session:0
+[   39003ms] [ERROR] Failed to load resource: the server responded with a status of 429 (Too Many Requests) @ http://localhost:3000/api/auth/get-session:0
+[   39079ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/login:0
+[   44266ms] [WARNING] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; 2026-06-27T01:21:27.497Z WARN [Better Auth]: Rate limiting could not determine a client IP and is falling back to a single shared per-path bucket. Ensure your runtime forwards a trusted client IP header, then set `advanced.ipAddress.ipAddressHeaders` or `advanced.ipAddress.trustedProxies` so the address can be resolved. @ http://localhost:3000/src/routes/__root.tsx:260
+[   44266ms] [ERROR] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; {name: HTTPError, message: Invalid server function ID: createMyProfile, stack: Error: Invalid server function ID: createMyProfile…ptureError (workers/runner-worker/index.js:51:10)} @ http://localhost:3000/src/routes/__root.tsx:260
+[   44266ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: virtual:cloudflare/worker-entry @ http://localhost:3000/src/routes/__root.tsx:260
+[   44266ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/recipients.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44266ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/i18n.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44266ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: virtual:cloudflare/worker-entry @ http://localhost:3000/src/routes/__root.tsx:260
+[   44266ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/recipients.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/campaigns.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/donations.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/i18n.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: virtual:cloudflare/worker-entry @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/recipients.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/campaigns.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/donations.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/i18n.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: virtual:cloudflare/worker-entry @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/recipients.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/campaigns.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/donations.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   44267ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/i18n.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260

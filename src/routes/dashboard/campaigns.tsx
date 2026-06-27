@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useMutation, useSuspenseQuery, useQueryClient } from '@tanstack/react-query'
 
-import { createCampaign, listMyCampaigns } from '#/server/campaigns'
+import { createCampaign } from '#/server/campaigns'
+import { campaignQueries } from '#/lib/queries/campaigns'
+import { errorMessage } from '#/lib/errors'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
@@ -11,29 +14,47 @@ import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/campaigns')({
   component: CampaignsPage,
-  loader: async () => listMyCampaigns(),
+  loader: async ({ context }) => {
+    // Prefetch into Query cache during navigation — component uses useSuspenseQuery.
+    await context.queryClient.ensureQueryData(campaignQueries.mine())
+  },
 })
 
 function CampaignsPage() {
-  const campaigns = Route.useLoaderData()
+  // Data guaranteed by loader — no loading state needed.
+  const { data: campaigns } = useSuspenseQuery(campaignQueries.mine())
+  const queryClient = useQueryClient()
+
   const [title, setTitle] = useState('')
   const [summary, setSummary] = useState('')
   const [goal, setGoal] = useState('')
   const [created, setCreated] = useState<{ slug: string } | null>(null)
 
+  // Mutation: create campaign, then invalidate the 'mine' query so the list
+  // refreshes automatically — no manual reload needed.
+  const mutation = useMutation({
+    mutationFn: (input: {
+      title: string
+      summary?: string
+      goalCents?: number
+    }) => createCampaign({ data: input }),
+    onSuccess: (res) => {
+      setCreated(res)
+      setTitle('')
+      setSummary('')
+      setGoal('')
+      queryClient.invalidateQueries({ queryKey: campaignQueries.all() })
+      setTimeout(() => setCreated(null), 5000)
+    },
+  })
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const res = await createCampaign({
-      data: {
-        title,
-        summary: summary || undefined,
-        goalCents: goal ? Math.round(Number(goal) * 100) : undefined,
-      },
+    mutation.mutate({
+      title,
+      summary: summary || undefined,
+      goalCents: goal ? Math.round(Number(goal) * 100) : undefined,
     })
-    setCreated(res)
-    setTitle('')
-    setSummary('')
-    setGoal('')
   }
 
   return (
@@ -42,16 +63,16 @@ function CampaignsPage() {
 
       <div className="mt-6 space-y-3">
         {campaigns.map((c) => (
-          <div key={c.id} className="feature-card rounded-2xl p-5 flex justify-between items-center">
-            <div>
+          <div key={c.id} className="feature-card rounded-2xl p-5 flex justify-between items-center gap-3">
+            <div className="min-w-0">
               <Link to="/c/$campaignSlug" params={{ campaignSlug: c.slug }} className="font-semibold no-underline" >
                 {c.title}
               </Link>
-              <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
+              <p className="text-sm break-words" style={{ color: 'var(--sea-ink-soft)' }}>
                 {c.status}{c.goalCents ? m['campaignsPage.goalSuffix']({ amount: formatMoney(c.goalCents, c.currency) }) : ''}
               </p>
             </div>
-            <span className="island-kicker">{c.status}</span>
+            <span className="island-kicker whitespace-nowrap">{c.status}</span>
           </div>
         ))}
         {campaigns.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['campaignsPage.empty']()}</p>}
@@ -71,7 +92,10 @@ function CampaignsPage() {
           <Label>{m['campaignsPage.goalLabel']()}</Label>
           <Input type="number" min="0" step="0.01" value={goal} onChange={(e) => setGoal(e.target.value)} />
         </div>
-        <Button type="submit">{m['campaignsPage.submit']()}</Button>
+        <Button type="submit" disabled={mutation.isPending}>{m['campaignsPage.submit']()}</Button>
+        {mutation.isError && (
+          <p className="text-sm" style={{ color: 'var(--destructive)' }}>{errorMessage(mutation.error)}</p>
+        )}
         {created && (
           <p className="text-sm" style={{ color: 'var(--palm)' }}>
             {m['campaignsPage.createdPrefix']()}{' '}

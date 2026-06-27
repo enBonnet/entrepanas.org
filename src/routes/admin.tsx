@@ -1,14 +1,24 @@
 import { Outlet, Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 
-import { authClient } from '#/lib/auth-client'
+import { getDb } from '#/db'
+import { getSession } from '#/lib/auth'
 import { m } from '#/paraglide/messages.js'
+
+// ponytail: server fn reads session from request headers — no /api/auth/*
+// HTTP roundtrip (avoids the 429 rate-limit that authClient.getSession() hit).
+const requireAdminFn = createServerFn({ method: 'GET' }).handler(async () => {
+  const db = getDb()
+  const session = await getSession(db)
+  if (!session?.user) throw redirect({ to: '/' })
+  if ((session.user as { role?: string }).role !== 'admin') throw redirect({ to: '/dashboard' })
+  return null
+})
 
 export const Route = createFileRoute('/admin')({
   component: AdminLayout,
   beforeLoad: async () => {
-    const { data } = await authClient.getSession()
-    if (!data?.user) throw redirect({ to: '/login' })
-    if ((data.user as { role?: string }).role !== 'admin') throw redirect({ to: '/dashboard' })
+    await requireAdminFn()
   },
 })
 

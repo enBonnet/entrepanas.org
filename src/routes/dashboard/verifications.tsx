@@ -1,16 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { getMyProfile } from '#/server/recipients'
+import { recipientQueries } from '#/lib/queries/recipients'
 import { UploadForm } from '#/components/upload-form'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/verifications')({
   component: VerificationsPage,
-  loader: async () => getMyProfile(),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(recipientQueries.mine())
+  },
 })
 
 function VerificationsPage() {
-  const profile = Route.useLoaderData()
+  const { data: profile } = useSuspenseQuery(recipientQueries.mine())
 
   return (
     <div>

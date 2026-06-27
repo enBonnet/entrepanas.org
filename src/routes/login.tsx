@@ -13,16 +13,23 @@ function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (busy) return
+    setBusy(true)
     setError(null)
-    const { error: err } = await authClient.signIn.email({ email, password })
-    if (err) {
-      setError(err.message ?? m['login.errorFallback']())
-      return
+    try {
+      const { error: err } = await authClient.signIn.email({ email, password })
+      if (err) {
+        setError(err.message ?? m['login.errorFallback']())
+        return
+      }
+      navigate({ to: '/dashboard' })
+    } finally {
+      setBusy(false)
     }
-    navigate({ to: '/dashboard' })
   }
 
   return (
@@ -40,7 +47,7 @@ function LoginPage() {
           <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
         {error && <p className="text-sm" style={{ color: 'var(--destructive)' }}>{error}</p>}
-        <Button type="submit" className="w-full">{m['login.submit']()}</Button>
+        <Button type="submit" className="w-full" disabled={busy}>{busy ? m['login.submitting']?.() ?? '…' : m['login.submit']()}</Button>
       </form>
     </div>
   )

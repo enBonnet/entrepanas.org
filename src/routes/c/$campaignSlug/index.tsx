@@ -1,25 +1,27 @@
+import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { getCampaignBySlug } from '#/server/campaigns'
-import { listCampaignDonations } from '#/server/donations'
-import { listPublicEvidenceForCampaign } from '#/server/evidence'
+import { campaignQueries } from '#/lib/queries/campaigns'
 import { formatMoney } from '#/lib/format'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/c/$campaignSlug/')({
   component: CampaignPage,
-  loader: async ({ params }) => {
-    const campaign = await getCampaignBySlug({ data: { slug: params.campaignSlug } })
+  loader: async ({ params, context }) => {
+    const campaign = await context.queryClient.ensureQueryData(
+      campaignQueries.publicBySlug(params.campaignSlug),
+    )
     if (!campaign) return null
-    const [donations, evidence] = await Promise.all([
-      listCampaignDonations({ data: { campaignId: campaign.campaign.id } }),
-      listPublicEvidenceForCampaign({ data: { campaignId: campaign.campaign.id } }),
+    await Promise.all([
+      context.queryClient.ensureQueryData(campaignQueries.donations(campaign.campaign.id)),
+      context.queryClient.ensureQueryData(campaignQueries.evidence(campaign.campaign.id)),
     ])
-    return { campaign, donations, evidence }
+    return campaign
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [] }
-    const { campaign } = loaderData
+    const campaign = loaderData
     const title = campaign.campaign.title
     const description =
       campaign.campaign.summary ??
@@ -44,16 +46,20 @@ export const Route = createFileRoute('/c/$campaignSlug/')({
 })
 
 function CampaignPage() {
-  const data = Route.useLoaderData()
-  if (!data) return <p style={{ color: 'var(--sea-ink-soft)' }}>{m['campaign.notFound']()}</p>
-  const { campaign, donations, evidence } = data
+  const { campaignSlug } = Route.useParams()
+  const { data: campaign } = useSuspenseQuery(campaignQueries.publicBySlug(campaignSlug))
+  if (!campaign) return <p style={{ color: 'var(--sea-ink-soft)' }}>{m['campaign.notFound']()}</p>
+
+  const { data: donations } = useSuspenseQuery(campaignQueries.donations(campaign.campaign.id))
+  const { data: evidence } = useSuspenseQuery(campaignQueries.evidence(campaign.campaign.id))
+
   const goal = campaign.campaign.goalCents
   const pct = goal ? Math.min(100, Math.round((campaign.raisedCents / goal) * 100)) : 0
 
   return (
     <div className="rise-in">
       <p className="island-kicker">{m['campaign.kicker']()}</p>
-      <h1 className="display-title text-4xl font-bold mt-2" style={{ color: 'var(--sea-ink)' }}>
+      <h1 className="display-title text-3xl sm:text-4xl font-bold mt-2" style={{ color: 'var(--sea-ink)' }}>
         {campaign.campaign.title}
       </h1>
       {campaign.campaign.summary && (
@@ -88,14 +94,7 @@ function CampaignPage() {
           >
             {m['campaign.iSentDonation']()}
           </Link>
-          <a
-            href={`/api/og/campaign/${campaign.campaign.slug}`}
-            download={`entrepanas-${campaign.campaign.slug}.png`}
-            className="rounded-md px-4 py-2 text-sm font-medium no-underline"
-            style={{ background: 'var(--sea-ink)', color: 'white' }}
-          >
-            {m['campaign.shareImage']()}
-          </a>
+          <ShareButton slug={campaign.campaign.slug} />
           {campaign.recipient && (
             <span className="ml-3 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>
               {m['common.byAuthor']({ name: `${campaign.recipient.publicName}, ${campaign.recipient.city}` })}
@@ -108,9 +107,9 @@ function CampaignPage() {
         <h2 className="font-semibold text-lg" style={{ color: 'var(--sea-ink)' }}>{m['campaign.timelineTitle']()}</h2>
         <ul className="mt-3 space-y-2">
           {donations.map((d) => (
-            <li key={d.id} className="feature-card rounded-xl p-4 flex justify-between">
-              <span style={{ color: 'var(--sea-ink-soft)' }}>{d.message ?? m['campaign.donationFallback']()}</span>
-              <span className="font-medium" style={{ color: 'var(--sea-ink)' }}>
+            <li key={d.id} className="feature-card rounded-xl p-4 flex justify-between gap-3">
+              <span className="break-words" style={{ color: 'var(--sea-ink-soft)' }}>{d.message ?? m['campaign.donationFallback']()}</span>
+              <span className="font-medium whitespace-nowrap" style={{ color: 'var(--sea-ink)' }}>
                 {formatMoney(d.amountCents, d.currency)}
               </span>
             </li>
@@ -136,7 +135,44 @@ function CampaignPage() {
             <p className="text-sm col-span-full" style={{ color: 'var(--sea-ink-soft)' }}>{m['campaign.noEvidence']()}</p>
           )}
         </div>
+
+        <h3 className="font-semibold mt-8" style={{ color: 'var(--sea-ink)' }}>{m['campaign.expensesTitle']()}</h3>
+        <ul className="mt-3 space-y-2">
+          {evidence.expenses.map((exp) => (
+            <li key={exp.id} className="feature-card rounded-xl p-4 flex justify-between gap-3">
+              <span className="break-words" style={{ color: 'var(--sea-ink-soft)' }}>{exp.title}</span>
+              <span className="font-medium whitespace-nowrap" style={{ color: 'var(--sea-ink)' }}>
+                {formatMoney(exp.totalCents, exp.currency)}
+              </span>
+            </li>
+          ))}
+          {evidence.expenses.length === 0 && (
+            <li className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['campaign.noExpenses']()}</li>
+          )}
+        </ul>
       </section>
     </div>
+  )
+}
+
+function ShareButton({ slug }: { slug: string }) {
+  const [copied, setCopied] = useState(false)
+
+  async function onCopy() {
+    const url = `${location.origin}/c/${slug}`
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onCopy}
+      className="rounded-md px-4 py-2 text-sm font-medium no-underline"
+      style={{ background: copied ? 'var(--palm)' : 'var(--sea-ink)', color: 'white' }}
+    >
+      {copied ? m['campaign.linkCopied']() : m['campaign.shareImage']()}
+    </button>
   )
 }

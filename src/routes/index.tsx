@@ -13,25 +13,25 @@ function Home() {
 
   return (
     <div className="rise-in">
-      <section className="island-shell rounded-2xl p-10 md:p-14">
+      <section className="island-shell rounded-2xl p-6 sm:p-10 md:p-14">
         <p className="island-kicker">{m['home.kicker']()}</p>
-        <h1 className="display-title mt-3 text-4xl md:text-5xl font-bold leading-tight" style={{ color: 'var(--sea-ink)' }}>
+        <h1 className="display-title mt-3 text-3xl sm:text-4xl md:text-5xl font-bold leading-tight" style={{ color: 'var(--sea-ink)' }}>
           {m['home.title']()}
         </h1>
-        <p className="mt-4 max-w-xl text-lg" style={{ color: 'var(--sea-ink-soft)' }}>
+        <p className="mt-4 max-w-xl text-base sm:text-lg" style={{ color: 'var(--sea-ink-soft)' }}>
           {m['home.subtitle']()}
         </p>
-        <div className="mt-8 flex gap-3">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Link
             to="/explore"
-            className="rounded-md px-5 py-2.5 font-medium no-underline"
+            className="rounded-md px-5 py-2.5 font-medium no-underline text-center sm:text-left"
             style={{ background: 'var(--palm)', color: 'white' }}
           >
             {m['home.ctaExplore']()}
           </Link>
           <Link
             to="/register"
-            className="rounded-md px-5 py-2.5 font-medium no-underline border"
+            className="rounded-md px-5 py-2.5 font-medium no-underline border text-center sm:text-left"
             style={{ borderColor: 'var(--line)' }}
           >
             {m['home.ctaBecomeRecipient']()}

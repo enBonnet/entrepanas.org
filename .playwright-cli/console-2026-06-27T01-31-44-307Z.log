@@ -1,0 +1,10 @@
+[      86ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/login:0
+[     959ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=25c9760d:14335
+[    1105ms] [ERROR] Failed to load resource: the server responded with a status of 429 (Too Many Requests) @ http://localhost:3000/api/auth/get-session:0
+[   12271ms] [ERROR] Failed to load resource: the server responded with a status of 429 (Too Many Requests) @ http://localhost:3000/api/auth/get-session:0
+[   12288ms] [ERROR] Failed to load resource: the server responded with a status of 429 (Too Many Requests) @ http://localhost:3000/api/auth/get-session:0
+[   29993ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: virtual:cloudflare/worker-entry @ http://localhost:3000/src/routes/__root.tsx:260
+[   29993ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/i18n.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   29993ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/recipients.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   29993ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/campaigns.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260
+[   29993ms] [LOG] %c[Server]%c color: #9333ea; font-weight: bold; color: inherit; [vite] hot updated: /src/server/donations.ts?tss-serverfn-split @ http://localhost:3000/src/routes/__root.tsx:260

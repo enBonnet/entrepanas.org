@@ -1,25 +1,27 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { getMyProfile } from '#/server/recipients'
-import { listMyCampaigns } from '#/server/campaigns'
-import { listMyDonations } from '#/server/donations'
+import { campaignQueries } from '#/lib/queries/campaigns'
+import { donationQueries } from '#/lib/queries/dashboard'
+import { recipientQueries } from '#/lib/queries/recipients'
 import { authClient } from '#/lib/auth-client'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/')({
   component: Overview,
-  loader: async () => {
-    const [profile, campaigns, donations] = await Promise.all([
-      getMyProfile(),
-      listMyCampaigns(),
-      listMyDonations(),
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(recipientQueries.mine()),
+      context.queryClient.ensureQueryData(campaignQueries.mine()),
+      context.queryClient.ensureQueryData(donationQueries.mine()),
     ])
-    return { profile, campaigns, donations }
   },
 })
 
 function Overview() {
-  const { profile, campaigns, donations } = Route.useLoaderData()
+  const { data: profile } = useSuspenseQuery(recipientQueries.mine())
+  const { data: campaigns } = useSuspenseQuery(campaignQueries.mine())
+  const { data: donations } = useSuspenseQuery(donationQueries.mine())
   const { data: session } = authClient.useSession()
   const role = (session?.user as { role?: string } | undefined)?.role ?? 'donor'
 

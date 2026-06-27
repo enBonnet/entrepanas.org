@@ -1,22 +1,24 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { listPendingEvidence, listPendingVerifications , listAbuseReports  } from '#/server/admin'
+import { adminQueries } from '#/lib/queries/admin'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminOverview,
-  loader: async () => {
-    const [evidence, verifications, reports] = await Promise.all([
-      listPendingEvidence(),
-      listPendingVerifications(),
-      listAbuseReports(),
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(adminQueries.pendingEvidence()),
+      context.queryClient.ensureQueryData(adminQueries.pendingVerifications()),
+      context.queryClient.ensureQueryData(adminQueries.abuseReports()),
     ])
-    return { evidence, verifications, reports }
   },
 })
 
 function AdminOverview() {
-  const { evidence, verifications, reports } = Route.useLoaderData()
+  const { data: evidence } = useSuspenseQuery(adminQueries.pendingEvidence())
+  const { data: verifications } = useSuspenseQuery(adminQueries.pendingVerifications())
+  const { data: reports } = useSuspenseQuery(adminQueries.abuseReports())
   return (
     <div>
       <h1 className="display-title text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>{m['admin.reviewQueueTitle']()}</h1>

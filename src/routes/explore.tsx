@@ -5,9 +5,10 @@ import {
   useNavigate,
   useSearch,
 } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
-import { listExploreProfiles } from '#/server/recipients'
+import { recipientQueries } from '#/lib/queries/recipients'
 import { TrustBadges } from '#/components/trust-badges'
 import { ReputationBadge } from '#/components/reputation-badge'
 import { Button } from '#/components/ui/button'
@@ -36,13 +37,15 @@ export const Route = createFileRoute('/explore')({
   component: Explore,
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({ ...search }),
-  loader: async ({ deps }) => listExploreProfiles({ data: { ...deps, limit: 24 } }),
+  loader: async ({ deps, context }) => {
+    await context.queryClient.ensureQueryData(recipientQueries.explore(deps))
+  },
 })
 
 function Explore() {
-  const rows = Route.useLoaderData()
   const search = useSearch({ from: '/explore' })
   const navigate = useNavigate({ from: '/explore' })
+  const { data: rows } = useSuspenseQuery(recipientQueries.explore(search))
   const [form, setForm] = useState({
     q: search.q ?? '',
     region: search.region ?? '',
@@ -126,7 +129,7 @@ function Explore() {
             </SelectContent>
           </Select>
         </div>
-        <div className="lg:col-span-3 flex gap-2">
+        <div className="sm:col-span-2 lg:col-span-3 flex flex-wrap gap-2">
           <Button type="submit" size="sm">{m['explore.applyFilters']()}</Button>
           <Button
             type="button"

@@ -1,0 +1,50 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "entrepanas" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=e5]:
+        - link "Explorar" [ref=e6] [cursor=pointer]:
+          - /url: /explore
+        - link "Cómo funciona" [ref=e7] [cursor=pointer]:
+          - /url: /trust/how-it-works
+        - link "Iniciar sesión" [ref=e8] [cursor=pointer]:
+          - /url: /login
+        - link "Empezar" [ref=e9] [cursor=pointer]:
+          - /url: /register
+        - button "Switch to en" [ref=e10]: en
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - complementary [ref=e13]:
+        - navigation [ref=e14]:
+          - link "Resumen" [ref=e15] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Perfil" [ref=e16] [cursor=pointer]:
+            - /url: /dashboard/profile
+          - link "Mis donaciones" [ref=e17] [cursor=pointer]:
+            - /url: /me/donations
+      - generic [ref=e19]:
+        - heading "Campañas" [level=1] [ref=e20]
+        - paragraph [ref=e22]: Aún no hay campañas.
+        - generic [ref=e23]:
+          - heading "Nueva campaña" [level=2] [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]: Título
+            - textbox [ref=e27]
+          - generic [ref=e28]:
+            - generic [ref=e29]: Resumen
+            - textbox [ref=e30]
+          - generic [ref=e31]:
+            - generic [ref=e32]: Meta (USD)
+            - spinbutton [ref=e33]
+          - button "Crear campaña" [ref=e34]
+  - contentinfo [ref=e35]:
+    - generic [ref=e36]:
+      - paragraph [ref=e37]: entrepanas — trazabilidad de donaciones ligera sobre Cloudflare.
+      - paragraph [ref=e38]:
+        - text: Un esfuerzo de
+        - link "build4venezuela.com" [ref=e39] [cursor=pointer]:
+          - /url: https://build4venezuela.com/
+      - paragraph [ref=e40]:
+        - link "GitHub" [ref=e41] [cursor=pointer]:
+          - /url: https://github.com/enBonnet/entrepanas.org

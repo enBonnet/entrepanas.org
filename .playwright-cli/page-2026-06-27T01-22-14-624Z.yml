@@ -1,0 +1,141 @@
+- generic:
+  - banner:
+    - generic:
+      - link:
+        - /url: /
+        - text: entrepanas
+      - navigation:
+        - link:
+          - /url: /explore
+          - text: Explorar
+        - link:
+          - /url: /trust/how-it-works
+          - text: Cómo funciona
+        - link:
+          - /url: /dashboard
+          - text: Panel
+        - button: Cerrar sesión
+        - button: en
+  - main:
+    - generic:
+      - complementary:
+        - navigation:
+          - link:
+            - /url: /dashboard
+            - text: Resumen
+          - link:
+            - /url: /dashboard/profile
+            - text: Perfil
+          - link:
+            - /url: /me/donations
+            - text: Mis donaciones
+      - generic:
+        - generic:
+          - heading [level=1]: Crear perfil de destinatario
+          - paragraph: Los campos privados (nombre legal, teléfono, correo, dirección exacta) nunca se muestran públicamente.
+          - generic:
+            - generic:
+              - generic:
+                - generic: Nombre público *
+                - textbox: Comunidad Baruta
+              - generic:
+                - generic: Nombre legal * (privado)
+                - textbox: Test Legal Name
+              - generic:
+                - generic: Estado / Región *
+                - combobox [expanded]:
+                  - generic: Selecciona un estado
+                  - img
+                - combobox
+              - generic:
+                - generic: Ciudad *
+                - combobox [disabled]:
+                  - generic: Primero elige un estado
+                  - img
+                - combobox [disabled]
+              - generic:
+                - generic: Barrio
+                - textbox
+              - generic:
+                - generic: Teléfono (privado)
+                - textbox
+              - generic:
+                - generic: Correo (privado)
+                - textbox
+            - generic:
+              - generic: Dirección exacta (privado, solo admin)
+              - textbox
+            - generic:
+              - generic: Bio / historia
+              - textbox
+            - button: Publicar perfil
+  - contentinfo:
+    - generic:
+      - paragraph: entrepanas — trazabilidad de donaciones ligera sobre Cloudflare.
+      - paragraph:
+        - text: Un esfuerzo de
+        - link:
+          - /url: https://build4venezuela.com/
+          - text: build4venezuela.com
+      - paragraph:
+        - link:
+          - /url: https://github.com/enBonnet/entrepanas.org
+          - text: GitHub
+  - button [ref=e84] [cursor=pointer]:
+    - img [ref=e85]
+  - listbox [ref=e86]:
+    - group "Caracas y alrededores" [ref=e87]:
+      - generic [ref=e88]: Caracas y alrededores
+      - option "Distrito Capital" [active] [ref=e89]:
+        - generic [ref=e91]: Distrito Capital
+      - option "Miranda" [ref=e92]:
+        - generic [ref=e94]: Miranda
+      - option "La Guaira" [ref=e95]:
+        - generic [ref=e97]: La Guaira
+    - group "Región central" [ref=e98]:
+      - generic [ref=e99]: Región central
+      - option "Aragua" [ref=e100]:
+        - generic [ref=e102]: Aragua
+      - option "Carabobo" [ref=e103]:
+        - generic [ref=e105]: Carabobo
+    - group "Resto del país" [ref=e106]:
+      - generic [ref=e107]: Resto del país
+      - option "Amazonas" [ref=e108]:
+        - generic [ref=e110]: Amazonas
+      - option "Anzoátegui" [ref=e111]:
+        - generic [ref=e113]: Anzoátegui
+      - option "Apure" [ref=e114]:
+        - generic [ref=e116]: Apure
+      - option "Barinas" [ref=e117]:
+        - generic [ref=e119]: Barinas
+      - option "Bolívar" [ref=e120]:
+        - generic [ref=e122]: Bolívar
+      - option "Cojedes" [ref=e123]:
+        - generic [ref=e125]: Cojedes
+      - option "Delta Amacuro" [ref=e126]:
+        - generic [ref=e128]: Delta Amacuro
+      - option "Falcón" [ref=e129]:
+        - generic [ref=e131]: Falcón
+      - option "Guárico" [ref=e132]:
+        - generic [ref=e134]: Guárico
+      - option "Lara" [ref=e135]:
+        - generic [ref=e137]: Lara
+      - option "Mérida" [ref=e138]:
+        - generic [ref=e140]: Mérida
+      - option "Monagas" [ref=e141]:
+        - generic [ref=e143]: Monagas
+      - option "Nueva Esparta" [ref=e144]:
+        - generic [ref=e146]: Nueva Esparta
+      - option "Portuguesa" [ref=e147]:
+        - generic [ref=e149]: Portuguesa
+      - option "Sucre" [ref=e150]:
+        - generic [ref=e152]: Sucre
+      - option "Táchira" [ref=e153]:
+        - generic [ref=e155]: Táchira
+      - option "Trujillo" [ref=e156]:
+        - generic [ref=e158]: Trujillo
+      - option "Yaracuy" [ref=e159]:
+        - generic [ref=e161]: Yaracuy
+      - option "Zulia" [ref=e162]:
+        - generic [ref=e164]: Zulia
+    - img [ref=e166]

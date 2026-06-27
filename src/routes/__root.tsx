@@ -3,9 +3,12 @@ import {
   Link,
   Scripts,
   createRootRouteWithContext,
+  useNavigate,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { Popover } from 'radix-ui'
+import { useState } from 'react'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import { authClient } from '#/lib/auth-client'
@@ -20,6 +23,27 @@ import type { QueryClient } from '@tanstack/react-query'
 
 interface MyRouterContext {
   queryClient: QueryClient
+}
+
+function NotFound() {
+  return (
+    <div className="rise-in island-shell rounded-2xl p-8 text-center">
+      <p className="island-kicker">404</p>
+      <h1 className="display-title mt-2 text-3xl font-bold" style={{ color: 'var(--sea-ink)' }}>
+        {m['root.notFound']()}
+      </h1>
+      <p className="mt-2" style={{ color: 'var(--sea-ink-soft)' }}>
+        {m['root.notFoundDesc']()}
+      </p>
+      <Link
+        to="/"
+        className="inline-block mt-4 rounded-md px-4 py-2 text-sm font-medium no-underline"
+        style={{ background: 'var(--palm)', color: 'white' }}
+      >
+        {m['nav.explore']()}
+      </Link>
+    </div>
+  )
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -57,12 +81,88 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
 })
 
-function Header() {
+function NavLinks({ className }: { className?: string }) {
   const { data: session } = authClient.useSession()
+  const navigate = useNavigate()
   const role = (session?.user as { role?: string } | undefined)?.role ?? 'donor'
+  return (
+    <nav className={className}>
+      <Link to="/explore" className="nav-link" activeProps={{ className: 'is-active' }}>
+        {m['nav.explore']()}
+      </Link>
+      <Link to="/trust/how-it-works" className="nav-link" activeProps={{ className: 'is-active' }}>
+        {m['nav.howItWorks']()}
+      </Link>
+      {session?.user ? (
+        <>
+          <Link to="/dashboard" className="nav-link" activeProps={{ className: 'is-active' }}>
+            {m['nav.dashboard']()}
+          </Link>
+          {role === 'admin' && (
+            <Link to="/admin" className="nav-link" activeProps={{ className: 'is-active' }}>
+              {m['nav.admin']()}
+            </Link>
+          )}
+          <button
+            onClick={async () => {
+              await authClient.signOut()
+              navigate({ to: '/' })
+            }}
+            className="nav-link text-left"
+            style={{ color: 'var(--sea-ink-soft)' }}
+          >
+            {m['nav.signOut']()}
+          </button>
+        </>
+      ) : (
+        <>
+          <Link to="/login" className="nav-link">{m['nav.signIn']()}</Link>
+          <Link
+            to="/register"
+            className="rounded-md px-3 py-1.5 text-sm font-medium no-underline"
+            style={{ background: 'var(--palm)', color: 'white' }}
+          >
+            {m['nav.getStarted']()}
+          </Link>
+        </>
+      )}
+      <LanguageSwitcher />
+    </nav>
+  )
+}
 
+// ponytail: Popover gives outside-click + escape close for the mobile menu,
+// which <details> can't do without manual JS.
+function MobileMenu() {
+  const [open, setOpen] = useState(false)
+  return (
+    <Popover.Root open={open} onOpenChange={setOpen}>
+      <Popover.Trigger
+        className="md:hidden rounded-md p-2 -mr-2 cursor-pointer"
+        aria-label="Menú"
+        style={{ color: 'var(--sea-ink)' }}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          className="md:hidden absolute right-0 top-full mt-1 w-56 rounded-xl p-4 space-y-3 text-sm island-shell z-50"
+          sideOffset={4}
+          onClick={() => setOpen(false)}
+        >
+          <NavLinks className="flex flex-col gap-3" />
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  )
+}
+
+function Header() {
   return (
     <header
       className="sticky top-0 z-20 backdrop-blur"
@@ -72,47 +172,8 @@ function Header() {
         <Link to="/" className="display-title text-xl font-bold no-underline" style={{ color: 'var(--sea-ink)' }}>
           entrepanas
         </Link>
-        <nav className="flex items-center gap-6 text-sm">
-          <Link to="/explore" className="nav-link" activeProps={{ className: 'is-active' }}>
-            {m['nav.explore']()}
-          </Link>
-          <Link to="/trust/how-it-works" className="nav-link" activeProps={{ className: 'is-active' }}>
-            {m['nav.howItWorks']()}
-          </Link>
-          {session?.user ? (
-            <>
-              <Link to="/dashboard" className="nav-link" activeProps={{ className: 'is-active' }}>
-                {m['nav.dashboard']()}
-              </Link>
-              {role === 'admin' && (
-                <Link to="/admin" className="nav-link" activeProps={{ className: 'is-active' }}>
-                  {m['nav.admin']()}
-                </Link>
-              )}
-              <button
-                onClick={() => void authClient.signOut()}
-                className="text-sm"
-                style={{ color: 'var(--sea-ink-soft)' }}
-              >
-                {m['nav.signOut']()}
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="nav-link">
-                {m['nav.signIn']()}
-              </Link>
-              <Link
-                to="/register"
-                className="rounded-md px-3 py-1.5 text-sm font-medium no-underline"
-                style={{ background: 'var(--palm)', color: 'white' }}
-              >
-                {m['nav.getStarted']()}
-              </Link>
-            </>
-          )}
-          <LanguageSwitcher />
-        </nav>
+        <NavLinks className="hidden md:flex items-center gap-6 text-sm" />
+        <MobileMenu />
       </div>
     </header>
   )
@@ -126,7 +187,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Header />
-        <main className="page-wrap py-8">{children}</main>
+        <main className="page-wrap py-6 md:py-8">{children}</main>
         <footer className="site-footer mt-16">
           <div className="page-wrap py-8 text-sm space-y-1" style={{ color: 'var(--sea-ink-soft)' }}>
             <p>{m['root.footerNote']()}</p>
