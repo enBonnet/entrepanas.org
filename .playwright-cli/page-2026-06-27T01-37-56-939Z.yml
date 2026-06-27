@@ -1,0 +1,53 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "entrepanas" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=e5]:
+        - link "Explorar" [ref=e6] [cursor=pointer]:
+          - /url: /explore
+        - link "Cómo funciona" [ref=e7] [cursor=pointer]:
+          - /url: /trust/how-it-works
+        - link "Iniciar sesión" [ref=e8] [cursor=pointer]:
+          - /url: /login
+        - link "Empezar" [ref=e9] [cursor=pointer]:
+          - /url: /register
+        - button "Switch to en" [ref=e10]: en
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - complementary [ref=e13]:
+        - navigation [ref=e14]:
+          - link "Resumen" [ref=e15] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Perfil" [ref=e16] [cursor=pointer]:
+            - /url: /dashboard/profile
+          - link "Mis donaciones" [ref=e17] [cursor=pointer]:
+            - /url: /me/donations
+      - generic [ref=e19]:
+        - heading "Métodos de pago" [level=1] [ref=e20]
+        - paragraph [ref=e21]: Agrega una o más formas en que los donantes pueden enviar ayuda — p. ej. «Pago móvil», «Cuenta bancaria». Los administradores revisan antes de que se muestre públicamente.
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - paragraph [ref=e25]: Pago móvil
+            - paragraph [ref=e26]: Banco Mercantil, cédula 12345678
+          - generic [ref=e27]: pending
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: Tipo / etiqueta
+            - textbox "Tipo / etiqueta" [ref=e31]:
+              - /placeholder: Pago móvil, Cuenta bancaria, Zelle…
+          - generic [ref=e32]:
+            - generic [ref=e33]: Cómo deben enviar los donantes
+            - textbox "Cómo deben enviar los donantes" [ref=e34]:
+              - /placeholder: Banesco 0134… · C.I. 12.345.678 · pago móvil al 0414-…
+          - button "Agregar método de pago" [ref=e35]
+  - contentinfo [ref=e36]:
+    - generic [ref=e37]:
+      - paragraph [ref=e38]: entrepanas — trazabilidad de donaciones ligera sobre Cloudflare.
+      - paragraph [ref=e39]:
+        - text: Un esfuerzo de
+        - link "build4venezuela.com" [ref=e40] [cursor=pointer]:
+          - /url: https://build4venezuela.com/
+      - paragraph [ref=e41]:
+        - link "GitHub" [ref=e42] [cursor=pointer]:
+          - /url: https://github.com/enBonnet/entrepanas.org

@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { authorizeUpload, commitUpload } from '#/server/uploads'
 import { Button } from '#/components/ui/button'
+import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { m } from '#/paraglide/messages.js'
 
@@ -66,7 +67,10 @@ export function UploadForm({
         body: file,
         headers: { 'Content-Type': file.type },
       })
-      if (!put.ok) throw new Error(m['uploadForm.errorFallback']())
+      if (!put.ok) {
+        const code = await put.text().catch(() => '')
+        throw new Error(code || m['uploadForm.errorFallback']())
+      }
 
       const committed = await commitUpload({
         data: {
@@ -91,12 +95,12 @@ export function UploadForm({
   return (
     <div>
       <Label>{label ?? m[KIND_KEY[kind]]()}</Label>
-      <input
+      <Input
         type="file"
         accept="image/jpeg,image/png,image/webp"
         disabled={busy}
         onChange={onFile}
-        className="mt-1 block text-sm"
+        className="mt-1"
       />
       {busy && <p className="text-xs mt-1" style={{ color: 'var(--sea-ink-soft)' }}>{m['uploadForm.uploading']()}</p>}
       {error && <p className="text-xs mt-1" style={{ color: 'var(--destructive)' }}>{error}</p>}

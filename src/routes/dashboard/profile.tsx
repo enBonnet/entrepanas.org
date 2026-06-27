@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { createMyProfile, getMyProfile, updateMyProfile } from '#/server/recipients'
+import { createMyProfile, updateMyProfile } from '#/server/recipients'
+import { recipientQueries } from '#/lib/queries/recipients'
 import { authClient } from '#/lib/auth-client'
+import { errorMessage } from '#/lib/errors'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
@@ -22,17 +25,18 @@ import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/profile')({
   component: ProfilePage,
-  loader: async () => getMyProfile(),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(recipientQueries.mine())
+  },
 })
 
-type Profile = Awaited<ReturnType<typeof getMyProfile>>
-
 function ProfilePage() {
-  const existing = Route.useLoaderData()
+  const { data: existing } = useSuspenseQuery(recipientQueries.mine())
   // ponytail: refetch session so role promotion (donor -> recipient) reflects in the nav
   // without a full page reload. createMyProfile updates user.role in the DB; the client
   // session atom is otherwise only refreshed on auth calls, not on arbitrary server fns.
   const { refetch: refetchSession } = authClient.useSession()
+  const queryClient = useQueryClient()
   const [saved, setSaved] = useState(false)
   const [form, setForm] = useState({
     publicName: existing?.publicName ?? '',
@@ -50,15 +54,30 @@ function ProfilePage() {
     setForm((f) => ({ ...f, [key]: value }))
   }
 
+  const mutation = useMutation({
+    mutationFn: async (payload: Record<string, string>) => {
+      if (existing) {
+        await updateMyProfile({ data: payload })
+      } else {
+        await createMyProfile({ data: payload })
+        await refetchSession()
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: recipientQueries.all() })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    },
+  })
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (existing) {
-      await updateMyProfile({ data: form })
-    } else {
-      await createMyProfile({ data: form })
-      await refetchSession()
-    }
-    setSaved(true)
+    // ponytail: empty string != undefined for zod .optional() — strip empties so
+    // unfilled optional fields pass validation instead of failing email/format checks.
+    const payload = Object.fromEntries(
+      Object.entries(form).filter(([, v]) => v !== ''),
+    )
+    mutation.mutate(payload)
   }
 
   return (
@@ -144,7 +163,10 @@ function ProfilePage() {
           <Textarea rows={4} value={form.bio} onChange={(e) => set('bio', e.target.value)} />
         </Field>
         {saved && <p className="text-sm" style={{ color: 'var(--palm)' }}>{m['profilePage.saved']()}</p>}
-        <Button type="submit">{existing ? m['profilePage.submitEdit']() : m['profilePage.submitCreate']()}</Button>
+        {mutation.isError && (
+          <p className="text-sm" style={{ color: 'var(--destructive)' }}>{errorMessage(mutation.error)}</p>
+        )}
+        <Button type="submit" disabled={mutation.isPending}>{existing ? m['profilePage.submitEdit']() : m['profilePage.submitCreate']()}</Button>
       </form>
     </div>
   )
@@ -158,5 +180,3 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   )
 }
-
-export type { Profile }

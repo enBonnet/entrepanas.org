@@ -1,0 +1,5 @@
+- generic [ref=e33]:
+  - generic [ref=e34]:
+    - strong [ref=e35]: Something went wrong!
+    - button "Hide Error" [ref=e36]
+  - code [ref=e40]: "[ { \"expected\": \"object\", \"code\": \"invalid_type\", \"path\": [], \"message\": \"Invalid input: expected object, received undefined\" } ]"

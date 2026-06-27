@@ -1,38 +1,53 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { getCampaignBySlug } from '#/server/campaigns'
+import { getDb } from '#/db'
+import { getSession } from '#/lib/auth'
 import { createDonation, confirmDonation } from '#/server/donations'
 import { authorizeUpload, commitUpload } from '#/server/uploads'
+import { campaignQueries } from '#/lib/queries/campaigns'
+import { donationQueries } from '#/lib/queries/dashboard'
+import { errorMessage } from '#/lib/errors'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { Textarea } from '#/components/ui/textarea'
-import { errorMessage } from '#/lib/errors'
 import { m } from '#/paraglide/messages.js'
+
+const requireSession = createServerFn({ method: 'GET' }).handler(async () => {
+  const db = getDb()
+  const session = await getSession(db)
+  if (!session?.user) throw redirect({ to: '/' })
+  return null
+})
 
 export const Route = createFileRoute('/donate/$campaignSlug/confirm')({
   component: ConfirmPage,
-  loader: async ({ params }) => getCampaignBySlug({ data: { slug: params.campaignSlug } }),
+  beforeLoad: async () => {
+    await requireSession()
+  },
+  loader: async ({ params, context }) => {
+    await context.queryClient.ensureQueryData(campaignQueries.publicBySlug(params.campaignSlug))
+  },
 })
 
 function ConfirmPage() {
-  const data = Route.useLoaderData()
+  const { campaignSlug } = Route.useParams()
+  const { data: data } = useSuspenseQuery(campaignQueries.publicBySlug(campaignSlug))
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [amount, setAmount] = useState('')
   const [message, setMessage] = useState('')
   const [proof, setProof] = useState<File | null>(null)
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   if (!data) return <p style={{ color: 'var(--sea-ink-soft)' }}>{m['donate.notFound']()}</p>
   const { campaign } = data
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setBusy(true)
-    setError(null)
-    try {
+  const mutation = useMutation({
+    mutationFn: async () => {
       const cents = Math.round(Number(amount) * 100)
       if (!cents) throw new Error(m['donate.enterAmount']())
 
@@ -82,12 +97,21 @@ function ConfirmPage() {
           transferProofImageId: proofImageId,
         },
       })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: donationQueries.all() })
+      queryClient.invalidateQueries({ queryKey: campaignQueries.all() })
       navigate({ to: '/me/donations' })
-    } catch (err) {
+    },
+    onError: (err) => {
       setError(errorMessage(err))
-    } finally {
-      setBusy(false)
-    }
+    },
+  })
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    mutation.mutate()
   }
 
   return (
@@ -110,15 +134,14 @@ function ConfirmPage() {
         </div>
         <div className="space-y-1.5">
           <Label>{m['donate.proofLabel']()}</Label>
-          <input
+          <Input
             type="file"
             accept="image/jpeg,image/png,image/webp"
             onChange={(e) => setProof(e.target.files?.[0] ?? null)}
-            className="block text-sm"
           />
         </div>
         {error && <p className="text-sm" style={{ color: 'var(--destructive)' }}>{error}</p>}
-        <Button type="submit" disabled={busy}>{busy ? m['donate.submitting']() : m['donate.submit']()}</Button>
+        <Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? m['donate.submitting']() : m['donate.submit']()}</Button>
       </form>
     </div>
   )

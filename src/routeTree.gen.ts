@@ -31,6 +31,7 @@ import { Route as AdminEvidenceRouteImport } from './routes/admin/evidence'
 import { Route as RRecipientSlugIndexRouteImport } from './routes/r/$recipientSlug/index'
 import { Route as CCampaignSlugIndexRouteImport } from './routes/c/$campaignSlug/index'
 import { Route as DonateCampaignSlugConfirmRouteImport } from './routes/donate/$campaignSlug/confirm'
+import { Route as ApiUploadSplatRouteImport } from './routes/api/upload/$'
 import { Route as ApiImgIdRouteImport } from './routes/api/img/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiOgCampaignCampaignSlugRouteImport } from './routes/api/og/campaign/$campaignSlug'
@@ -146,6 +147,11 @@ const DonateCampaignSlugConfirmRoute =
     path: '/donate/$campaignSlug/confirm',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiUploadSplatRoute = ApiUploadSplatRouteImport.update({
+  id: '/api/upload/$',
+  path: '/api/upload/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiImgIdRoute = ApiImgIdRouteImport.update({
   id: '/api/img/$id',
   path: '/api/img/$id',
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$id': typeof ApiImgIdRoute
+  '/api/upload/$': typeof ApiUploadSplatRoute
   '/donate/$campaignSlug/confirm': typeof DonateCampaignSlugConfirmRoute
   '/c/$campaignSlug/': typeof CCampaignSlugIndexRoute
   '/r/$recipientSlug/': typeof RRecipientSlugIndexRoute
@@ -210,6 +217,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$id': typeof ApiImgIdRoute
+  '/api/upload/$': typeof ApiUploadSplatRoute
   '/donate/$campaignSlug/confirm': typeof DonateCampaignSlugConfirmRoute
   '/c/$campaignSlug': typeof CCampaignSlugIndexRoute
   '/r/$recipientSlug': typeof RRecipientSlugIndexRoute
@@ -238,6 +246,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/img/$id': typeof ApiImgIdRoute
+  '/api/upload/$': typeof ApiUploadSplatRoute
   '/donate/$campaignSlug/confirm': typeof DonateCampaignSlugConfirmRoute
   '/c/$campaignSlug/': typeof CCampaignSlugIndexRoute
   '/r/$recipientSlug/': typeof RRecipientSlugIndexRoute
@@ -267,6 +276,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/auth/$'
     | '/api/img/$id'
+    | '/api/upload/$'
     | '/donate/$campaignSlug/confirm'
     | '/c/$campaignSlug/'
     | '/r/$recipientSlug/'
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/auth/$'
     | '/api/img/$id'
+    | '/api/upload/$'
     | '/donate/$campaignSlug/confirm'
     | '/c/$campaignSlug'
     | '/r/$recipientSlug'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/auth/$'
     | '/api/img/$id'
+    | '/api/upload/$'
     | '/donate/$campaignSlug/confirm'
     | '/c/$campaignSlug/'
     | '/r/$recipientSlug/'
@@ -336,6 +348,7 @@ export interface RootRouteChildren {
   TrustHowItWorksRoute: typeof TrustHowItWorksRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiImgIdRoute: typeof ApiImgIdRoute
+  ApiUploadSplatRoute: typeof ApiUploadSplatRoute
   DonateCampaignSlugConfirmRoute: typeof DonateCampaignSlugConfirmRoute
   CCampaignSlugIndexRoute: typeof CCampaignSlugIndexRoute
   RRecipientSlugIndexRoute: typeof RRecipientSlugIndexRoute
@@ -498,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DonateCampaignSlugConfirmRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/upload/$': {
+      id: '/api/upload/$'
+      path: '/api/upload/$'
+      fullPath: '/api/upload/$'
+      preLoaderRoute: typeof ApiUploadSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/img/$id': {
       id: '/api/img/$id'
       path: '/api/img/$id'
@@ -573,6 +593,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrustHowItWorksRoute: TrustHowItWorksRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiImgIdRoute: ApiImgIdRoute,
+  ApiUploadSplatRoute: ApiUploadSplatRoute,
   DonateCampaignSlugConfirmRoute: DonateCampaignSlugConfirmRoute,
   CCampaignSlugIndexRoute: CCampaignSlugIndexRoute,
   RRecipientSlugIndexRoute: RRecipientSlugIndexRoute,

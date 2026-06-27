@@ -22,8 +22,13 @@ export const Route = createFileRoute('/api/img/$id')({
         const isOwner = session?.user.id === img.ownerUserId
         const isAdmin = session?.user.role === 'admin'
 
+        // ponytail: assume-good-intent — public images are visible unless
+        // explicitly rejected/redacted (admin takedown). Owner/admin see their
+        // private/admin_only uploads regardless.
         const isPublic =
-          img.visibility === 'public' && img.moderationStatus === 'approved'
+          img.visibility === 'public' &&
+          img.moderationStatus !== 'rejected' &&
+          img.moderationStatus !== 'redacted'
         const canSeePrivate = img.visibility === 'private' && (isOwner || isAdmin)
         const canSeeAdmin = img.visibility === 'admin_only' && isAdmin
 

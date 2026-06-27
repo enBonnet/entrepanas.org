@@ -1,22 +1,32 @@
-import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { listPendingEvidence, reviewEvidence } from '#/server/admin'
+import { reviewEvidence } from '#/server/admin'
+import { adminQueries } from '#/lib/queries/admin'
 import { Button } from '#/components/ui/button'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/evidence')({
   component: EvidenceReview,
-  loader: async () => listPendingEvidence(),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(adminQueries.pendingEvidence())
+  },
 })
 
 function EvidenceReview() {
-  const initial = Route.useLoaderData()
-  const [items, setItems] = useState(initial)
+  const { data: items } = useSuspenseQuery(adminQueries.pendingEvidence())
+  const queryClient = useQueryClient()
 
-  async function decide(id: string, decision: 'approved' | 'rejected' | 'redacted') {
-    await reviewEvidence({ data: { imageId: id, decision } })
-    setItems((prev) => prev.filter((i) => i.id !== id))
+  const mutation = useMutation({
+    mutationFn: (input: { imageId: string; decision: 'approved' | 'rejected' | 'redacted' }) =>
+      reviewEvidence({ data: input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueries.all() })
+    },
+  })
+
+  function decide(id: string, decision: 'approved' | 'rejected' | 'redacted') {
+    mutation.mutate({ imageId: id, decision })
   }
 
   return (
@@ -29,10 +39,10 @@ function EvidenceReview() {
             <div className="p-4">
               <p className="island-kicker">{img.kind} · {img.visibility}</p>
               {img.caption && <p className="mt-1 text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{img.caption}</p>}
-              <div className="mt-3 flex gap-2">
-                <Button size="sm" onClick={() => decide(img.id, 'approved')}>{m['admin.approve']()}</Button>
-                <Button size="sm" variant="outline" onClick={() => decide(img.id, 'rejected')}>{m['admin.reject']()}</Button>
-                <Button size="sm" variant="destructive" onClick={() => decide(img.id, 'redacted')}>{m['admin.redact']()}</Button>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button size="sm" disabled={mutation.isPending} onClick={() => decide(img.id, 'approved')}>{m['admin.approve']()}</Button>
+                <Button size="sm" variant="outline" disabled={mutation.isPending} onClick={() => decide(img.id, 'rejected')}>{m['admin.reject']()}</Button>
+                <Button size="sm" variant="destructive" disabled={mutation.isPending} onClick={() => decide(img.id, 'redacted')}>{m['admin.redact']()}</Button>
               </div>
             </div>
           </div>

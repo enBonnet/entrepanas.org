@@ -1,0 +1,115 @@
+- generic:
+  - banner:
+    - generic:
+      - link:
+        - /url: /
+        - text: entrepanas
+      - navigation:
+        - link:
+          - /url: /explore
+          - text: Explorar
+        - link:
+          - /url: /trust/how-it-works
+          - text: Cómo funciona
+        - link:
+          - /url: /dashboard
+          - text: Panel
+        - button: Cerrar sesión
+        - button: en
+  - main:
+    - generic:
+      - complementary:
+        - navigation:
+          - link:
+            - /url: /dashboard
+            - text: Resumen
+          - link:
+            - /url: /dashboard/profile
+            - text: Perfil
+          - link:
+            - /url: /me/donations
+            - text: Mis donaciones
+      - generic:
+        - generic:
+          - heading [level=1]: Crear perfil de destinatario
+          - paragraph: Los campos privados (nombre legal, teléfono, correo, dirección exacta) nunca se muestran públicamente.
+          - generic:
+            - generic:
+              - generic:
+                - generic: Nombre público *
+                - textbox: Comunidad Baruta
+              - generic:
+                - generic: Nombre legal * (privado)
+                - textbox: Test Legal Name
+              - generic:
+                - generic: Estado / Región *
+                - combobox:
+                  - generic: Miranda
+                  - img
+                - combobox
+              - generic:
+                - generic: Ciudad *
+                - combobox [expanded]:
+                  - generic: Selecciona una ciudad
+                  - img
+                - combobox
+              - generic:
+                - generic: Barrio
+                - textbox
+              - generic:
+                - generic: Teléfono (privado)
+                - textbox
+              - generic:
+                - generic: Correo (privado)
+                - textbox
+            - generic:
+              - generic: Dirección exacta (privado, solo admin)
+              - textbox
+            - generic:
+              - generic: Bio / historia
+              - textbox
+            - button: Publicar perfil
+  - contentinfo:
+    - generic:
+      - paragraph: entrepanas — trazabilidad de donaciones ligera sobre Cloudflare.
+      - paragraph:
+        - text: Un esfuerzo de
+        - link:
+          - /url: https://build4venezuela.com/
+          - text: build4venezuela.com
+      - paragraph:
+        - link:
+          - /url: https://github.com/enBonnet/entrepanas.org
+          - text: GitHub
+  - button [ref=e153] [cursor=pointer]:
+    - img [ref=e154]
+  - listbox [ref=e155]:
+    - option "Los Teques" [active] [ref=e156]:
+      - generic [ref=e158]: Los Teques
+    - option "San Antonio de Los Altos" [ref=e159]:
+      - generic [ref=e161]: San Antonio de Los Altos
+    - option "Guarenas" [ref=e162]:
+      - generic [ref=e164]: Guarenas
+    - option "Guatire" [ref=e165]:
+      - generic [ref=e167]: Guatire
+    - option "Charallave" [ref=e168]:
+      - generic [ref=e170]: Charallave
+    - option "Santa Teresa del Tuy" [ref=e171]:
+      - generic [ref=e173]: Santa Teresa del Tuy
+    - option "Ocumare del Tuy" [ref=e174]:
+      - generic [ref=e176]: Ocumare del Tuy
+    - option "Cúa" [ref=e177]:
+      - generic [ref=e179]: Cúa
+    - option "Petare" [ref=e180]:
+      - generic [ref=e182]: Petare
+    - option "Baruta" [ref=e183]:
+      - generic [ref=e185]: Baruta
+    - option "Chacao" [ref=e186]:
+      - generic [ref=e188]: Chacao
+    - option "El Hatillo" [ref=e189]:
+      - generic [ref=e191]: El Hatillo
+    - option "Higuerote" [ref=e192]:
+      - generic [ref=e194]: Higuerote
+    - option "Río Chico" [ref=e195]:
+      - generic [ref=e197]: Río Chico
+    - img [ref=e199]

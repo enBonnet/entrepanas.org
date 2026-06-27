@@ -1,6 +1,6 @@
 /** @jsxImportSource satori/jsx */
 
-type CampaignData = {
+export type CampaignData = {
   campaign: {
     title: string
     summary: string | null

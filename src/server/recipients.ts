@@ -146,7 +146,14 @@ export const getPublicProfileBySlug = createServerFn({ method: 'GET' })
         verificationStatus: payoutMethods.verificationStatus,
       })
       .from(payoutMethods)
-      .where(eq(payoutMethods.recipientProfileId, p.id))
+      .where(
+        and(
+          eq(payoutMethods.recipientProfileId, p.id),
+          // ponytail: assume-good-intent — show all payout methods except
+          // explicitly rejected. Pending/verified are both live.
+          ne(payoutMethods.verificationStatus, 'rejected'),
+        ),
+      )
 
     const activeCampaigns = await db
       .select({

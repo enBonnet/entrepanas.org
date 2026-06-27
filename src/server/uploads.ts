@@ -8,7 +8,6 @@ import { campaigns, evidenceImages, recipientProfiles } from '#/db/schema'
 import { getSession, requireRole } from '#/lib/auth'
 import { newId } from '#/lib/id'
 import { recomputeRecipientReputation } from '#/lib/reputation'
-import { createPresignedPutUrl } from '#/lib/r2'
 import {
   verifyR2Object,
   validateMimeType,
@@ -94,12 +93,11 @@ export const authorizeUpload = createServerFn({ method: 'POST' })
     // Key embeds owner so commitUpload can verify provenance without extra state.
     const objectKey = `uploads/${visibility}/${data.kind}/${user.id}/${imageId}-${data.filename}`
 
-    const { url, expiresIn } = await createPresignedPutUrl({
-      key: objectKey,
-      contentType: data.contentType,
-    })
-
-    return { uploadUrl: url, objectKey, imageId, expiresIn }
+    // ponytail: direct-to-binding PUT route instead of presigned R2 URLs.
+    // The presigned flow splits storage in local dev (real R2 vs Miniflare sim)
+    // and needs a CORS policy. A same-origin Worker route writes to the R2
+    // binding directly — no CORS, no split-brain, works identically in dev+prod.
+    return { uploadUrl: `/api/upload/${objectKey}`, objectKey, imageId, expiresIn: 600 }
   })
 
 const commitSchema = z.object({
@@ -145,7 +143,10 @@ export const commitUpload = createServerFn({ method: 'POST' })
         checksum: data.checksum,
         kind: data.kind,
         visibility,
-        moderationStatus: 'pending',
+        // ponytail: assume-good-intent — evidence is public on upload. Admin
+        // moderation is reactive: reports → redact/reject after the fact.
+        // Existing pending rows (pre-flip) stay pending until cleared manually.
+        moderationStatus: 'approved',
         linkedEntityType: data.linkedEntityType,
         linkedEntityId: data.linkedEntityId,
         caption: data.caption,

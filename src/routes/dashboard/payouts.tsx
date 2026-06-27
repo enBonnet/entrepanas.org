@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { createPayoutMethod, listMyPayouts } from '#/server/payouts'
+import { createPayoutMethod } from '#/server/payouts'
+import { payoutQueries } from '#/lib/queries/dashboard'
+import { errorMessage } from '#/lib/errors'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
@@ -10,21 +13,33 @@ import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/dashboard/payouts')({
   component: PayoutsPage,
-  loader: async () => listMyPayouts(),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(payoutQueries.mine())
+  },
 })
 
 function PayoutsPage() {
-  const payouts = Route.useLoaderData()
+  const { data: payouts } = useSuspenseQuery(payoutQueries.mine())
+  const queryClient = useQueryClient()
   const [label, setLabel] = useState('')
   const [details, setDetails] = useState('')
   const [ok, setOk] = useState(false)
 
+  const mutation = useMutation({
+    mutationFn: (input: { label: string; details: string }) =>
+      createPayoutMethod({ data: input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: payoutQueries.all() })
+      setLabel('')
+      setDetails('')
+      setOk(true)
+      setTimeout(() => setOk(false), 3000)
+    },
+  })
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    await createPayoutMethod({ data: { label, details } })
-    setLabel('')
-    setDetails('')
-    setOk(true)
+    mutation.mutate({ label, details })
   }
 
   return (
@@ -69,8 +84,11 @@ function PayoutsPage() {
             required
           />
         </div>
-        <Button type="submit">{m['payoutsPage.submit']()}</Button>
+        <Button type="submit" disabled={mutation.isPending}>{m['payoutsPage.submit']()}</Button>
         {ok && <p className="text-sm" style={{ color: 'var(--palm)' }}>{m['payoutsPage.added']()}</p>}
+        {mutation.isError && (
+          <p className="text-sm" style={{ color: 'var(--destructive)' }}>{errorMessage(mutation.error)}</p>
+        )}
       </form>
     </div>
   )

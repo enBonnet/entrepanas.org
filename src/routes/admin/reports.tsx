@@ -1,22 +1,32 @@
-import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { listAbuseReports, updateAbuseReport } from '#/server/admin'
+import { updateAbuseReport } from '#/server/admin'
+import { adminQueries } from '#/lib/queries/admin'
 import { Button } from '#/components/ui/button'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/reports')({
   component: ReportsAdmin,
-  loader: async () => listAbuseReports(),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(adminQueries.abuseReports())
+  },
 })
 
 function ReportsAdmin() {
-  const initial = Route.useLoaderData()
-  const [reports, setReports] = useState(initial)
+  const { data: reports } = useSuspenseQuery(adminQueries.abuseReports())
+  const queryClient = useQueryClient()
 
-  async function resolve(id: string, status: 'reviewed' | 'dismissed' | 'actioned') {
-    await updateAbuseReport({ data: { reportId: id, status } })
-    setReports((prev) => prev.filter((r) => r.id !== id))
+  const mutation = useMutation({
+    mutationFn: (input: { reportId: string; status: 'reviewed' | 'dismissed' | 'actioned' }) =>
+      updateAbuseReport({ data: input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueries.all() })
+    },
+  })
+
+  function resolve(id: string, status: 'reviewed' | 'dismissed' | 'actioned') {
+    mutation.mutate({ reportId: id, status })
   }
 
   return (
@@ -28,10 +38,10 @@ function ReportsAdmin() {
             <p className="island-kicker">{r.targetType} · {r.status}</p>
             <p className="mt-1 font-medium" style={{ color: 'var(--sea-ink)' }}>{r.reason}</p>
             {r.details && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{r.details}</p>}
-            <div className="mt-3 flex gap-2">
-              <Button size="sm" onClick={() => resolve(r.id, 'actioned')}>{m['admin.action']()}</Button>
-              <Button size="sm" variant="outline" onClick={() => resolve(r.id, 'reviewed')}>{m['admin.reviewed']()}</Button>
-              <Button size="sm" variant="ghost" onClick={() => resolve(r.id, 'dismissed')}>{m['admin.dismiss']()}</Button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button size="sm" disabled={mutation.isPending} onClick={() => resolve(r.id, 'actioned')}>{m['admin.action']()}</Button>
+              <Button size="sm" variant="outline" disabled={mutation.isPending} onClick={() => resolve(r.id, 'reviewed')}>{m['admin.reviewed']()}</Button>
+              <Button size="sm" variant="ghost" disabled={mutation.isPending} onClick={() => resolve(r.id, 'dismissed')}>{m['admin.dismiss']()}</Button>
             </div>
           </div>
         ))}

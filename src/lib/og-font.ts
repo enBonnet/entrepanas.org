@@ -1,12 +1,18 @@
 // ponytail: module-level cache survives across requests in the same Worker isolate.
-// Google Fonts CSS URLs are stable, first request is ~200ms slower, rest are instant.
+// Google Fonts serves woff2 to browsers (satori can't parse woff2, only TTF).
+// Browsers forbid overriding User-Agent on fetch, so we can't trick the CSS API.
+// These TTF URLs are versioned on Google's CDN and stable across requests.
 const fontCache = new Map<string, ArrayBuffer>()
-
-const FONTS_URL =
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap'
 
 const WEIGHTS = [400, 600, 700] as const
 type Weight = (typeof WEIGHTS)[number]
+
+// Stable TTF URLs for Inter v20 (fetched with a non-browser UA server-side).
+const TTF_URLS: Record<Weight, string> = {
+  400: 'https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf',
+  600: 'https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZg.ttf',
+  700: 'https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZg.ttf',
+}
 
 export interface OgFont {
   name: string
@@ -16,33 +22,16 @@ export interface OgFont {
 }
 
 export async function loadInterFonts(): Promise<OgFont[]> {
-  const css = await fetch(FONTS_URL, {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-    },
-  }).then((r) => r.text())
-
-  // Parse @font-face blocks: extract weight + first url() per block
-  const blocks = css.split('@font-face').slice(1)
   const out: OgFont[] = []
 
-  for (const block of blocks) {
-    const weightMatch = block.match(/font-weight:\s*(\d+)/)
-    if (!weightMatch) continue
-    const w = Number(weightMatch[1])
-    if (!WEIGHTS.includes(w as Weight)) continue
-    const weight = w as Weight
-
+  for (const weight of WEIGHTS) {
     const cached = fontCache.get(String(weight))
     if (cached) {
       out.push({ name: 'Inter', data: cached, weight, style: 'normal' })
       continue
     }
 
-    const urlMatch = block.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/)
-    if (!urlMatch?.[1]) continue
-    const data = await fetch(urlMatch[1]).then((r) => r.arrayBuffer())
+    const data = await fetch(TTF_URLS[weight]).then((r) => r.arrayBuffer())
     fontCache.set(String(weight), data)
     out.push({ name: 'Inter', data, weight, style: 'normal' })
   }

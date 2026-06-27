@@ -1,4 +1,4 @@
-import { and, countDistinct, eq, inArray, isNotNull, sql } from 'drizzle-orm'
+import { and, countDistinct, eq, inArray, isNotNull, ne, sql } from 'drizzle-orm'
 import { env } from 'cloudflare:workers'
 
 import { getDb } from '#/db'
@@ -189,7 +189,9 @@ export async function aggregateReputationSignals(
           and(
             eq(evidenceImages.linkedEntityType, 'campaign'),
             inArray(evidenceImages.linkedEntityId, [...goalMetIds]),
-            eq(evidenceImages.moderationStatus, 'approved'),
+            // ponytail: assume-good-intent — count anything not rejected/redacted.
+            ne(evidenceImages.moderationStatus, 'rejected'),
+            ne(evidenceImages.moderationStatus, 'redacted'),
             eq(evidenceImages.visibility, 'public'),
           ),
         )
@@ -199,6 +201,7 @@ export async function aggregateReputationSignals(
     }
 
     // Moderation-approved evidence linked to the recipient's campaigns (any visibility).
+    // ponytail: assume-good-intent — count anything not rejected/redacted.
     const [evCount] = await db
       .select({ n: sql<number>`count(*)`.as('n') })
       .from(evidenceImages)
@@ -206,7 +209,8 @@ export async function aggregateReputationSignals(
         and(
           eq(evidenceImages.linkedEntityType, 'campaign'),
           inArray(evidenceImages.linkedEntityId, campaignIds),
-          eq(evidenceImages.moderationStatus, 'approved'),
+          ne(evidenceImages.moderationStatus, 'rejected'),
+          ne(evidenceImages.moderationStatus, 'redacted'),
         ),
       )
     approvedEvidence = Number(evCount?.n ?? 0)

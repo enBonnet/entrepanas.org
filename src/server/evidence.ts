@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, ne } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { getDb } from '#/db'
@@ -127,7 +127,10 @@ export const listPublicEvidenceForCampaign = createServerFn({ method: 'GET' })
           eq(evidenceImages.linkedEntityType, 'campaign'),
           eq(evidenceImages.linkedEntityId, data.campaignId),
           eq(evidenceImages.visibility, 'public'),
-          eq(evidenceImages.moderationStatus, 'approved'),
+          // ponytail: assume-good-intent — show everything except explicitly
+          // rejected/redacted (admin takedown). Pending is treated as live.
+          ne(evidenceImages.moderationStatus, 'rejected'),
+          ne(evidenceImages.moderationStatus, 'redacted'),
         ),
       )
       .orderBy(desc(evidenceImages.createdAt))

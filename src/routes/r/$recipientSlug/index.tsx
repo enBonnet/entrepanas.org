@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { getPublicProfileBySlug } from '#/server/recipients'
+import { recipientQueries } from '#/lib/queries/recipients'
 import { TrustBadges } from '#/components/trust-badges'
 import { ReputationBadge } from '#/components/reputation-badge'
 import { Button } from '#/components/ui/button'
@@ -9,7 +10,9 @@ import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/r/$recipientSlug/')({
   component: RecipientPage,
-  loader: async ({ params }) => getPublicProfileBySlug({ data: { slug: params.recipientSlug } }),
+  loader: async ({ params, context }) => {
+    await context.queryClient.ensureQueryData(recipientQueries.publicBySlug(params.recipientSlug))
+  },
 })
 
 function CopyButton({ value, copyLabel }: { value: string; copyLabel: string }) {
@@ -36,14 +39,15 @@ function CopyButton({ value, copyLabel }: { value: string; copyLabel: string }) 
 }
 
 function RecipientPage() {
-  const p = Route.useLoaderData()
+  const { recipientSlug } = Route.useParams()
+  const { data: p } = useSuspenseQuery(recipientQueries.publicBySlug(recipientSlug))
   if (!p) {
     return <p style={{ color: 'var(--sea-ink-soft)' }}>{m['recipient.notFound']()}</p>
   }
   return (
     <div className="rise-in">
       <p className="island-kicker">{m['recipient.kicker']()}</p>
-      <h1 className="display-title text-4xl font-bold mt-2" style={{ color: 'var(--sea-ink)' }}>
+      <h1 className="display-title text-3xl sm:text-4xl font-bold mt-2" style={{ color: 'var(--sea-ink)' }}>
         {p.publicName}
       </h1>
       <p className="mt-1" style={{ color: 'var(--sea-ink-soft)' }}>
@@ -85,12 +89,11 @@ function RecipientPage() {
         </div>
       </section>
 
-      {p.payouts.some((x) => x.verificationStatus === 'verified') && (
+      {p.payouts.length > 0 && (
         <section className="island-shell rounded-2xl p-6 mt-8">
           <h2 className="font-semibold text-lg" style={{ color: 'var(--sea-ink)' }}>{m['recipient.howToSendTitle']()}</h2>
           <div className="mt-3 space-y-4">
             {p.payouts
-              .filter((x) => x.verificationStatus === 'verified')
               .map((pm, i) => {
                 const lines = pm.details.split('\n').map((l) => l.trim()).filter(Boolean)
                 return (

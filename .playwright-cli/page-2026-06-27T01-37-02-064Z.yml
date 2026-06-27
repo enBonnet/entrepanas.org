@@ -1,0 +1,64 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "entrepanas" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=e5]:
+        - link "Explorar" [ref=e6] [cursor=pointer]:
+          - /url: /explore
+        - link "Cómo funciona" [ref=e7] [cursor=pointer]:
+          - /url: /trust/how-it-works
+        - link "Panel" [ref=e42] [cursor=pointer]:
+          - /url: /dashboard
+        - button "Cerrar sesión" [ref=e43]
+        - button "Switch to en" [ref=e10]: en
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - complementary [ref=e13]:
+        - navigation [ref=e14]:
+          - link "Resumen" [ref=e15] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Perfil" [ref=e16] [cursor=pointer]:
+            - /url: /dashboard/profile
+          - link "Mis donaciones" [ref=e17] [cursor=pointer]:
+            - /url: /me/donations
+          - link "Pagos" [ref=e44] [cursor=pointer]:
+            - /url: /dashboard/payouts
+          - link "Campañas" [ref=e45] [cursor=pointer]:
+            - /url: /dashboard/campaigns
+          - link "Evidencia" [ref=e46] [cursor=pointer]:
+            - /url: /dashboard/evidence
+          - link "Verificaciones" [ref=e47] [cursor=pointer]:
+            - /url: /dashboard/verifications
+      - generic [ref=e19]:
+        - heading "Campañas" [level=1] [ref=e20]
+        - paragraph [ref=e22]: Aún no hay campañas.
+        - generic [ref=e23]:
+          - heading "Nueva campaña" [level=2] [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]: Título
+            - textbox [ref=e27]
+          - generic [ref=e28]:
+            - generic [ref=e29]: Resumen
+            - textbox [ref=e30]
+          - generic [ref=e31]:
+            - generic [ref=e32]: Meta (USD)
+            - spinbutton [ref=e33]
+          - button "Crear campaña" [active] [ref=e34]
+          - paragraph [ref=e50]:
+            - text: Creada —
+            - link "verla" [ref=e51] [cursor=pointer]:
+              - /url: /c/ayuda-a-baruta-5bc7a9
+            - text: .
+  - contentinfo [ref=e35]:
+    - generic [ref=e36]:
+      - paragraph [ref=e37]: entrepanas — trazabilidad de donaciones ligera sobre Cloudflare.
+      - paragraph [ref=e38]:
+        - text: Un esfuerzo de
+        - link "build4venezuela.com" [ref=e39] [cursor=pointer]:
+          - /url: https://build4venezuela.com/
+      - paragraph [ref=e40]:
+        - link "GitHub" [ref=e41] [cursor=pointer]:
+          - /url: https://github.com/enBonnet/entrepanas.org
+  - button "Open TanStack Devtools" [ref=e48] [cursor=pointer]:
+    - img "TanStack Devtools" [ref=e49]

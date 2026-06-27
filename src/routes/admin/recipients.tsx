@@ -1,13 +1,18 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { Collapsible } from 'radix-ui'
 
-import { getRecipientReputationAdmin, listAllRecipients, freezeRecipient } from '#/server/admin'
+import { getRecipientReputationAdmin, freezeRecipient } from '#/server/admin'
+import { adminQueries } from '#/lib/queries/admin'
 import { Button } from '#/components/ui/button'
 import { m } from '#/paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/recipients')({
   component: RecipientsAdmin,
-  loader: async () => listAllRecipients(),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(adminQueries.recipients())
+  },
 })
 
 type Breakdown = Awaited<ReturnType<typeof getRecipientReputationAdmin>>
@@ -25,15 +30,22 @@ const BREAKDOWN_ROWS: { key: keyof NonNullable<Breakdown>['breakdown']; label: s
 ]
 
 function RecipientsAdmin() {
-  const initial = Route.useLoaderData()
-  const [rows, setRows] = useState(initial)
+  const { data: rows } = useSuspenseQuery(adminQueries.recipients())
+  const queryClient = useQueryClient()
   const [openId, setOpenId] = useState<string | null>(null)
   const [breakdown, setBreakdown] = useState<Breakdown>(null)
   const [loading, setLoading] = useState(false)
 
+  const freezeMutation = useMutation({
+    mutationFn: (input: { profileId: string; frozen: boolean }) =>
+      freezeRecipient({ data: input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueries.all() })
+    },
+  })
+
   async function toggle(id: string, frozen: boolean) {
-    await freezeRecipient({ data: { profileId: id, frozen: !frozen } })
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, frozen: !frozen } : r)))
+    freezeMutation.mutate({ profileId: id, frozen: !frozen })
   }
 
   async function showBreakdown(id: string) {
@@ -59,43 +71,48 @@ function RecipientsAdmin() {
       </p>
       <div className="mt-6 space-y-2">
         {rows.map((r) => (
-          <div key={r.id} className="feature-card rounded-2xl p-4">
-            <div className="flex justify-between items-center">
-              <div>
+          <Collapsible.Root
+            key={r.id}
+            open={openId === r.id}
+            onOpenChange={(open) => setOpenId(open ? r.id : null)}
+            className="feature-card rounded-2xl p-4"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+              <div className="min-w-0">
                 <p className="font-medium" style={{ color: 'var(--sea-ink)' }}>{r.publicName}</p>
-                <p className="text-xs" style={{ color: 'var(--sea-ink-soft)' }}>
+                <p className="text-xs break-words" style={{ color: 'var(--sea-ink-soft)' }}>
                   {m['admin.trustLabel']()}: {r.trustLevel} · {m['reputation.label']()}: {r.reputationTier} ({r.reputationScore}) · {m['admin.flagsLabel']()}: {r.riskFlagsCount}
                   {r.frozen ? ` · ${m['common.statusFrozen']()}` : ''}
                 </p>
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => showBreakdown(r.id)}>
-                  {m['admin.reputationBreakdown']()}
-                </Button>
-                <Button size="sm" variant={r.frozen ? 'outline' : 'destructive'} onClick={() => toggle(r.id, r.frozen)}>
+              <div className="flex gap-2 shrink-0">
+                <Collapsible.Trigger asChild>
+                  <Button size="sm" variant="outline" onClick={() => showBreakdown(r.id)}>
+                    {m['admin.reputationBreakdown']()}
+                  </Button>
+                </Collapsible.Trigger>
+                <Button size="sm" variant={r.frozen ? 'outline' : 'destructive'} disabled={freezeMutation.isPending} onClick={() => toggle(r.id, r.frozen)}>
                   {r.frozen ? m['admin.unfreeze']() : m['admin.freeze']()}
                 </Button>
               </div>
             </div>
-            {openId === r.id && (
-              <div className="mt-3 border-t border-black/5 pt-3">
-                {loading || !breakdown ? (
-                  <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>…</p>
-                ) : (
-                  <dl className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-4">
-                    {BREAKDOWN_ROWS.map((row) => (
-                      <div key={row.key}>
-                        <dt className="text-xs" style={{ color: 'var(--sea-ink-soft)' }}>{row.label}</dt>
-                        <dd className="text-sm font-medium" style={{ color: 'var(--sea-ink)' }}>
-                          {breakdown.breakdown[row.key] >= 0 ? '+' : ''}{breakdown.breakdown[row.key]}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-              </div>
-            )}
-          </div>
+            <Collapsible.Content className="mt-3 border-t border-black/5 pt-3 data-[state=closed]:animate-none data-[state=open]:animate-none">
+              {loading || !breakdown ? (
+                <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>…</p>
+              ) : (
+                <dl className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-4">
+                  {BREAKDOWN_ROWS.map((row) => (
+                    <div key={row.key}>
+                      <dt className="text-xs" style={{ color: 'var(--sea-ink-soft)' }}>{row.label}</dt>
+                      <dd className="text-sm font-medium" style={{ color: 'var(--sea-ink)' }}>
+                        {breakdown.breakdown[row.key] >= 0 ? '+' : ''}{breakdown.breakdown[row.key]}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </Collapsible.Content>
+          </Collapsible.Root>
         ))}
         {rows.length === 0 && <p className="text-sm" style={{ color: 'var(--sea-ink-soft)' }}>{m['admin.noRecipients']()}</p>}
       </div>
