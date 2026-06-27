@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { createMyProfile, getMyProfile, updateMyProfile } from '#/server/recipients'
+import { authClient } from '#/lib/auth-client'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
@@ -28,6 +29,10 @@ type Profile = Awaited<ReturnType<typeof getMyProfile>>
 
 function ProfilePage() {
   const existing = Route.useLoaderData()
+  // ponytail: refetch session so role promotion (donor -> recipient) reflects in the nav
+  // without a full page reload. createMyProfile updates user.role in the DB; the client
+  // session atom is otherwise only refreshed on auth calls, not on arbitrary server fns.
+  const { refetch: refetchSession } = authClient.useSession()
   const [saved, setSaved] = useState(false)
   const [form, setForm] = useState({
     publicName: existing?.publicName ?? '',
@@ -51,6 +56,7 @@ function ProfilePage() {
       await updateMyProfile({ data: form })
     } else {
       await createMyProfile({ data: form })
+      await refetchSession()
     }
     setSaved(true)
   }
