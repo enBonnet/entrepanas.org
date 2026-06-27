@@ -228,6 +228,9 @@
   "admin.queueClear": "Queue is clear.",
   "admin.reportsTitle": "Abuse reports",
   "admin.noReports": "No open reports.",
+  "admin.action": "Action",
+  "admin.reviewed": "Reviewed",
+  "admin.dismiss": "Dismiss",
 
   "errors.NO_PROFILE": "You need to create a profile first.",
   "errors.NOT_FOUND": "Not found.",
@@ -235,5 +238,25 @@
   "errors.INSERT_FAILED": "Could not save. Try again.",
   "errors.PROFILE_EXISTS": "You already have a profile.",
   "errors.FILE_TOO_LARGE": "File is too large.",
-  "errors.FORBIDDEN": "You do not have permission for this."
+  "errors.FORBIDDEN": "You do not have permission for this.",
+  "errors.RATE_LIMITED": "Too many actions. Wait a few minutes.",
+  "errors.AMOUNT_MISMATCH": "Amount does not match the pledge.",
+  "errors.ALREADY_CONFIRMED": "This donation was already confirmed.",
+  "errors.INVALID_MIME": "File type not allowed.",
+  "errors.MIME_MISMATCH": "File type does not match.",
+  "errors.SIZE_MISMATCH": "File size does not match.",
+  "errors.OBJECT_NOT_FOUND": "File does not exist.",
+  "errors.INVALID_TRANSITION": "Invalid status change.",
+  "errors.TOTAL_MISMATCH": "Total does not match the sum of items.",
+  "errors.PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+  "errors.PASSWORD_NO_UPPERCASE": "Password must include an uppercase letter.",
+  "errors.PASSWORD_NO_DIGIT": "Password must include a number.",
+  "register.passwordHint": "At least 8 characters, one uppercase, one digit.",
+
+  "reputation.tierNuevo": "New",
+  "reputation.tierEnProceso": "In progress",
+  "reputation.tierVerificado": "Verified",
+  "reputation.tierConfiable": "Trusted",
+  "reputation.label": "Reputation",
+  "admin.reputationBreakdown": "Reputation breakdown"
 }

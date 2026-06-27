@@ -5,9 +5,16 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
-	"main": "@tanstack/react-start/server-entry",
+	"main": "src/server.ts",
 	"observability": {
 		"enabled": true
+	},
+	// Nightly Cron Trigger recomputes every recipient's reputation as a drift
+	// safety-net (03:00 UTC). The custom entrypoint re-exports the TanStack
+	// fetch handler and adds the scheduled() handler — the virtual server-entry
+	// module can't export scheduled.
+	"triggers": {
+		"crons": ["0 3 * * *"]
 	},
 	// Cloudflare D1 (SQLite-dialect) — the all-Cloudflare DB. Create with:
 	//   npx wrangler d1 create entrepanas   (then paste the returned database_id below for remote deploys)
@@ -32,6 +39,7 @@
 	"vars": {
 		"R2_ACCOUNT_ID": "3a1bc7f182750ece2bf1becab111b0b6",
 		"R2_BUCKET_NAME": "entrepanas-evidence",
-		"UPLOAD_MAX_BYTES": "10485760"
+		"UPLOAD_MAX_BYTES": "10485760",
+		"REPUTATION_PUBLIC_TIER": "0"
 	}
 }

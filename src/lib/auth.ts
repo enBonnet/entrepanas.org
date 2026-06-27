@@ -4,6 +4,7 @@ import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { getRequest } from '@tanstack/react-start/server'
 
 import { schema  } from '#/db'
+import { validatePasswordStrength } from '#/lib/validate'
 import type {Database} from '#/db';
 
 export type Auth = ReturnType<typeof createAuth>
@@ -21,7 +22,17 @@ export function createAuth(db: Database) {
         verification: schema.verification,
       },
     }),
-    emailAndPassword: { enabled: true },
+    emailAndPassword: {
+      enabled: true,
+      passwordValidator: (password: string) => {
+        validatePasswordStrength(password)
+      },
+    },
+    rateLimit: {
+      enabled: true,
+      window: 60, // seconds
+      max: 10,    // max requests per window per IP
+    },
     user: {
       additionalFields: {
         role: { type: 'string', required: false, defaultValue: 'donor' },

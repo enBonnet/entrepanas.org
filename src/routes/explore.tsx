@@ -9,6 +9,7 @@ import { z } from 'zod'
 
 import { listExploreProfiles } from '#/server/recipients'
 import { TrustBadges } from '#/components/trust-badges'
+import { ReputationBadge } from '#/components/reputation-badge'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
@@ -159,11 +160,15 @@ function Explore() {
               {r.bio}
             </p>
             <div className="mt-4">
-              <TrustBadges
-                identity={r.identityVerified}
-                payout={r.payoutVerified}
-                location={r.locationVerified}
-              />
+              {r.reputationTier ? (
+                <ReputationBadge tier={r.reputationTier} icon={r.reputationIcon} />
+              ) : (
+                <TrustBadges
+                  identity={r.identityVerified}
+                  payout={r.payoutVerified}
+                  location={r.locationVerified}
+                />
+              )}
             </div>
           </Link>
         ))}

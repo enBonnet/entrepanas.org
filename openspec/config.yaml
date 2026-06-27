@@ -1,0 +1,72 @@
+# openspec/config.yaml
+# SDD configuration for the entrepanas project.
+# Source of truth for spec-driven development. Committed to the repo.
+schema: spec-driven
+
+project: entrepanas
+engram_project: entrepanas.org
+
+context: |
+  Stack: TanStack Start + React 19 on Cloudflare Workers (@cloudflare/vite-plugin).
+  Storage: D1 (SQLite) via Drizzle ORM; R2 for images (direct browser uploads, never via Worker).
+  Auth: Better Auth with Drizzle adapter; sessions + roles donor|recipient|admin; per-request instance.
+  i18n: Paraglide JS, base locale es, cookie strategy (no URL prefixes); SEO indexed in Spanish.
+  UI: Tailwind v4 + shadcn/ui (radix-ui, class-variance-authority, tailwind-merge). Validation: Zod v4.
+  Extras: Sentry (optional, VITE_SENTRY_DSN), Satori+resvg (OG images), aws4fetch (R2 presign).
+  Geography: Venezuela-only; 24 states/cities as compile-time constants in src/lib/locations.ts (YAGNI, no DB tables).
+  Upload flow: authorizeUpload -> R2 presigned PUT -> commitUpload -> evidence_images row; reads gated via /api/img/$id.
+  Conventions: path aliases #/* and @/* -> ./src/*; TS strict (noUncheckedIndexedAccess, noUnusedLocals, verbatimModuleSyntax); ponytail: comments mark deliberate YAGNI simplifications (respect them).
+
+testing:
+  strict_tdd: false              # deferred: no vitest.config/tests yet; flip back to true after harness is bootstrapped
+  test_command: "npm run test"   # vitest run
+  build_command: "npm run build"
+  typecheck_command: "npm run typecheck"
+  lint_command: "npm run lint"
+  format_command: "npm run format"
+  layers:
+    unit: { available: true, tool: vitest }
+    integration: { available: true, tool: "@testing-library/react + jsdom" }
+    e2e: { available: false, tool: null }
+  coverage:
+    available: false
+    command: "vitest run --coverage"
+    note: "No coverage provider installed; install @vitest/coverage-v8 to enable."
+
+# Session preflight (decided by user at init time)
+execution_mode: interactive
+artifact_store: { mode: openspec }
+delivery_strategy: single-pr
+review_budget_lines: 800
+size_exception:
+  policy: "Require maintainer-approved size:exception if forecast > 400 lines"
+
+rules:
+  proposal:
+    - Include a rollback plan for risky changes.
+    - Respect existing ponytail: YAGNI simplifications; do not over-engineer.
+    - Keep privacy guarantees (exact address, legal name, phone, email, lat/lng never returned by public endpoints).
+  specs:
+    - Use Given/When/Then for scenarios.
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY).
+  design:
+    - Document architecture decisions with rationale.
+    - Follow existing per-request pattern (getDb() inside request context, auth instance per request).
+    - Prefer DB constraints / native platform features over app code.
+  tasks:
+    - Group by phase, use hierarchical numbering.
+    - Keep tasks completable in one session.
+  apply:
+    steps:
+      - Follow existing code patterns and path aliases (#/*, @/*).
+    tdd: false                    # deferred until vitest harness is bootstrapped
+    test_command: "npm run test"
+  verify:
+    test_command: "npm run test"
+    build_command: "npm run build"
+    typecheck_command: "npm run typecheck"
+    lint_command: "npm run lint"
+    coverage_threshold: 0          # coverage provider not installed; 0 = no enforced threshold
+  archive:
+    - Warn before merging destructive deltas.
+    - Never delete or modify archived changes (audit trail).

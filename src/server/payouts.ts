@@ -6,6 +6,7 @@ import { getDb } from '#/db'
 import { payoutMethods, recipientProfiles } from '#/db/schema'
 import { getSession, requireRole } from '#/lib/auth'
 import { newId } from '#/lib/id'
+import { checkRateLimit } from '#/lib/validate'
 
 const input = z.object({
   label: z.string().min(2).max(60), // e.g. "Pago móvil", "Cuenta bancaria"
@@ -39,6 +40,9 @@ export const createPayoutMethod = createServerFn({ method: 'POST' })
     const u = requireRole(session, ['recipient', 'admin'])
     const profileId = await myProfileId(u.id)
     if (!profileId) throw new Error('NO_PROFILE')
+
+    // Rate limit: max 5 payout methods per day per profile.
+    await checkRateLimit(`payout:create:${profileId}`, 5, 86400_000)
 
     await db.insert(payoutMethods).values({
       id: newId(),

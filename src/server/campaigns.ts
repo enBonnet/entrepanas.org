@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { getDb } from '#/db'
@@ -11,13 +11,7 @@ import {
 import { getSession, requireRole } from '#/lib/auth'
 import { newId } from '#/lib/id'
 import { uniqueSlug } from '#/lib/format'
-
-const createInput = z.object({
-  title: z.string().min(3).max(120),
-  summary: z.string().max(1000).optional(),
-  goalCents: z.number().int().positive().optional(),
-  currency: z.string().length(3).default('USD'),
-})
+import { checkRateLimit, validateCampaignTransition } from '#/lib/validate'
 
 async function myProfileId(userId: string) {
   const db = getDb()
@@ -29,6 +23,13 @@ async function myProfileId(userId: string) {
   return row?.id
 }
 
+const createInput = z.object({
+  title: z.string().min(3).max(120),
+  summary: z.string().max(1000).optional(),
+  goalCents: z.number().int().positive().optional(),
+  currency: z.string().length(3).default('USD'),
+})
+
 export const createCampaign = createServerFn({ method: 'POST' })
   .validator((d) => createInput.parse(d))
   .handler(async ({ data }) => {
@@ -38,6 +39,9 @@ export const createCampaign = createServerFn({ method: 'POST' })
 
     const profileId = await myProfileId(u.id)
     if (!profileId) throw new Error('NO_PROFILE')
+
+    // Rate limit: max 5 campaigns per day per profile.
+    await checkRateLimit(`campaign:create:${profileId}`, 5, 86400_000)
 
     const id = newId()
     const [row] = await db
@@ -57,17 +61,73 @@ export const createCampaign = createServerFn({ method: 'POST' })
     return row
   })
 
-export const listMyCampaigns = createServerFn({ method: 'GET' }).handler(async () => {
-  const db = getDb()
-  const session = await getSession(db)
-  const u = requireRole(session, ['donor', 'recipient', 'admin'])
-  const profileId = await myProfileId(u.id)
-  if (!profileId) return []
-  return db
-    .select()
-    .from(campaigns)
-    .where(eq(campaigns.recipientProfileId, profileId))
+const updateInput = z.object({
+  campaignId: z.string().min(1),
+  title: z.string().min(3).max(120).optional(),
+  summary: z.string().max(1000).optional(),
+  goalCents: z.number().int().positive().optional(),
+  status: z.enum(['active', 'paused', 'closed']).optional(),
 })
+
+export const updateCampaign = createServerFn({ method: 'POST' })
+  .validator((d) => updateInput.parse(d))
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const session = await getSession(db)
+    const u = requireRole(session, ['recipient', 'admin'])
+    const profileId = await myProfileId(u.id)
+    if (!profileId) throw new Error('NO_PROFILE')
+
+    const [c] = await db
+      .select()
+      .from(campaigns)
+      .where(
+        and(
+          eq(campaigns.id, data.campaignId),
+          eq(campaigns.recipientProfileId, profileId),
+        ),
+      )
+      .limit(1)
+    if (!c) throw new Error('NOT_FOUND')
+
+    // Validate status transition if changing status.
+    if (data.status && data.status !== c.status) {
+      validateCampaignTransition(c.status, data.status)
+    }
+
+    const set: Record<string, unknown> = {}
+    if (data.title !== undefined) set.title = data.title
+    if (data.summary !== undefined) set.summary = data.summary
+    if (data.goalCents !== undefined) set.goalCents = data.goalCents
+    if (data.status !== undefined) set.status = data.status
+
+    if (Object.keys(set).length === 0) return { ok: true }
+
+    await db.update(campaigns).set(set).where(eq(campaigns.id, data.campaignId))
+    return { ok: true }
+  })
+
+export const listMyCampaigns = createServerFn({ method: 'GET' })
+  .validator(
+    z
+      .object({ limit: z.number().int().min(1).max(50).default(20), offset: z.number().int().min(0).default(0) })
+      .partial()
+      .parse,
+  )
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const session = await getSession(db)
+    const u = requireRole(session, ['donor', 'recipient', 'admin'])
+    const profileId = await myProfileId(u.id)
+    if (!profileId) return []
+    return db
+      .select()
+      .from(campaigns)
+      .where(eq(campaigns.recipientProfileId, profileId))
+      .limit(data.limit ?? 20)
+      .offset(data.offset ?? 0)
+      .orderBy(desc(campaigns.createdAt))
+  })
 
 export const getCampaignBySlug = createServerFn({ method: 'GET' })
   .validator((d: { slug: string }) => d)
